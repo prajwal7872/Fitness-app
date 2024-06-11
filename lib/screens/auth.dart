@@ -45,13 +45,17 @@ class _AuthScreenState extends State<AuthScreen> {
         if (userCredentials.user!.emailVerified) {
           if (!mounted) return;
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(
+              builder: (context) => const HomeScreen(),
+            ),
           );
         } else {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Please verify your email to log in.'),
+              content: Text(
+                'Please verify your email to log in.',
+              ),
             ),
           );
         }
@@ -82,7 +86,7 @@ class _AuthScreenState extends State<AuthScreen> {
       );
     } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; 
       });
     }
   }
