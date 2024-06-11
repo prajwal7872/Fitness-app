@@ -30,7 +30,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
 
     _form.currentState!.save();
-    FocusScope.of(context).unfocus();
+    FocusScope.of(context).unfocus(); // Dismiss the keyboard
 
     setState(() {
       _isLoading = true;
@@ -43,10 +43,12 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _enteredPassword,
         );
         if (userCredentials.user!.emailVerified) {
+          if (!mounted) return;
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const HomeScreen()),
           );
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Please verify your email to log in.'),
@@ -59,11 +61,13 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _enteredPassword,
         );
         await userCredentials.user!.sendEmailVerification();
-
+        if (!mounted) return;
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Verification email sent. Please verify your email and log in.'),
+            content: Text(
+              'Verification email sent. Please verify your email and log in.',
+            ),
           ),
         );
       }
@@ -71,7 +75,9 @@ class _AuthScreenState extends State<AuthScreen> {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.message ?? 'Authentication failed.'),
+          content: Text(
+            error.message ?? 'Authentication failed.',
+          ),
         ),
       );
     } finally {
@@ -100,7 +106,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 width: 180,
                 child: Image.asset('assets/images/chat.png'),
               ),
-            AuthCard(
+              AuthCard(
                 formKey: _form,
                 isLoading: _isLoading,
                 isLogin: _isLogin,

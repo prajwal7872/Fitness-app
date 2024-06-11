@@ -62,7 +62,8 @@ class AuthCard extends StatelessWidget {
                   onSaved: onSavedPassword,
                 ),
                 const SizedBox(height: 12),
-               
+                if (isLoading) const CircularProgressIndicator(),
+                if (!isLoading)
                   ElevatedButton(
                     onPressed: onSubmit,
                     style: ElevatedButton.styleFrom(
@@ -70,7 +71,7 @@ class AuthCard extends StatelessWidget {
                     ),
                     child: Text(isLogin ? 'Login' : 'Signup'),
                   ),
-               
+                if (!isLoading)
                   TextButton(
                     onPressed: onToggleAuthMode,
                     child: Text(isLogin
