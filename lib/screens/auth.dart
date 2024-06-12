@@ -45,7 +45,7 @@ class _AuthScreenState extends State<AuthScreen> {
         if (userCredentials.user!.emailVerified) {
           if (!mounted) return;
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => HealthDataPage()),
           );
         } else {
           if (!mounted) return;
