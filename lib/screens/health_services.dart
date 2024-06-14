@@ -1,49 +1,49 @@
+// ignore_for_file: avoid_print
+
 import 'package:health/health.dart';
 import 'dart:convert';
 
 import 'package:intl/intl.dart';
 
-Future<void> fetchStepData() async {
-  List<HealthDataPoint> _healthDataList = [];
-  int steps = 0;
-  // get steps for today (i.e., since midnight)
-  final now = DateTime.now();
-  final midnight = DateTime(now.year, now.month, now.day);
+// Future<void> fetchStepData() async {
+//   List<HealthDataPoint> _healthDataList = [];
+//   int steps = 0;
+//   final now = DateTime.now();
+//   final midnight = DateTime(now.year, now.month, now.day);
 
-  bool stepsPermission =
-      await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
-  if (!stepsPermission) {
-    stepsPermission =
-        await Health().requestAuthorization([HealthDataType.STEPS]);
-  }
+//   bool stepsPermission =
+//       await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
+//   if (!stepsPermission) {
+//     stepsPermission =
+//         await Health().requestAuthorization([HealthDataType.STEPS]);
+//   }
 
-  if (stepsPermission) {
-    try {
-      steps = (await Health().getTotalStepsInInterval(midnight, now))!;
-    } catch (error) {
-      print("Exception in getTotalStepsInInterval: $error");
-    }
+//   if (stepsPermission) {
+//     try {
+//       steps = (await Health().getTotalStepsInInterval(midnight, now))!;
+//     } catch (error) {
+//       print("Exception in getTotalStepsInInterval: $error");
+//     }
 
-    print('Total number of steps: $steps');
-  } else {
-    print("Authorization not granted - error in authorization");
-  }
-}
-
-
+//     print('Total number of steps: $steps');
+//   } else {
+//     print("Authorization not granted - error in authorization");
+//   }
+// }
 
 Future<Map<String, double>> fetchWeeklyStepData() async {
-  // Get the date one week ago from midnight in UTC timezone
   final now = DateTime.now();
-  final midnightOneWeekAgo =
-      DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+  final midnightOneWeekAgo = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
 
-  // Check permissions for accessing Health data
-  bool stepsPermission =
-      await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
+  bool stepsPermission = await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
+
   if (!stepsPermission) {
-    stepsPermission =
-        await Health().requestAuthorization([HealthDataType.STEPS]);
+    try {
+      stepsPermission = await Health().requestAuthorization([HealthDataType.STEPS]);
+    } catch (e) {
+      print('Error requesting authorization: $e');
+      return {};
+    }
   }
 
   if (!stepsPermission) {
@@ -52,7 +52,6 @@ Future<Map<String, double>> fetchWeeklyStepData() async {
   }
 
   try {
-    // Fetch steps data from Health
     final stepsData = await Health().getHealthDataFromTypes(
       types: [HealthDataType.STEPS],
       startTime: midnightOneWeekAgo,
@@ -60,24 +59,17 @@ Future<Map<String, double>> fetchWeeklyStepData() async {
       includeManualEntry: true,
     );
 
-    // Parse the JSON data
     final jsonData = jsonEncode(stepsData);
     List<dynamic> healthDataList = jsonDecode(jsonData);
-    // Function to aggregate steps by day of the week
-print('healthdata$healthDataList');
+
     Map<String, double> aggregateStepsByDay(List<dynamic> data) {
       Map<String, double> stepsByDay = {};
-      DateFormat dateFormat =
-          DateFormat('EEE', 'en_US'); // Format to get the day name
+      DateFormat dateFormat = DateFormat('EEE', 'en_US');
 
       for (var entry in data) {
         double steps = (entry['value']['numeric_value'] as num).toDouble();
         String dateStr = entry['date_from'];
-
-        // Parse the date in UTC timezone
         DateTime dateTime = DateTime.parse(dateStr);
-
-        // Format the date to get the day name (e.g., Sun, Mon, etc.)
         String dayName = dateFormat.format(dateTime);
 
         if (stepsByDay.containsKey(dayName)) {
@@ -90,13 +82,11 @@ print('healthdata$healthDataList');
       return stepsByDay;
     }
 
-    // Aggregate steps by day of the week
-    Map<String, double> totalStepsByDay = aggregateStepsByDay(healthDataList);
-    //healthKitBloc.add(WeeklyStepsEvent(totalStepsByDay));
-
-    return totalStepsByDay;
+    return aggregateStepsByDay(healthDataList);
   } catch (error) {
     print("Exception in fetching or processing step data: $error");
     return {};
   }
 }
+
+
