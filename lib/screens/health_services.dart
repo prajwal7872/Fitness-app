@@ -33,13 +33,16 @@ import 'package:intl/intl.dart';
 
 Future<Map<String, double>> fetchWeeklyStepData() async {
   final now = DateTime.now();
-  final midnightOneWeekAgo = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+  final midnightOneWeekAgo =
+      DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
 
-  bool stepsPermission = await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
+  bool stepsPermission =
+      await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
 
   if (!stepsPermission) {
     try {
-      stepsPermission = await Health().requestAuthorization([HealthDataType.STEPS]);
+      stepsPermission =
+          await Health().requestAuthorization([HealthDataType.STEPS]);
     } catch (e) {
       print('Error requesting authorization: $e');
       return {};
@@ -60,6 +63,7 @@ Future<Map<String, double>> fetchWeeklyStepData() async {
     );
 
     final jsonData = jsonEncode(stepsData);
+    print("jsonData$jsonData");
     List<dynamic> healthDataList = jsonDecode(jsonData);
 
     Map<String, double> aggregateStepsByDay(List<dynamic> data) {
@@ -88,5 +92,3 @@ Future<Map<String, double>> fetchWeeklyStepData() async {
     return {};
   }
 }
-
-

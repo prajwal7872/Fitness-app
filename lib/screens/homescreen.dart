@@ -12,18 +12,26 @@ class HealthDataPage extends StatefulWidget {
 class _HealthDataPageState extends State<HealthDataPage> {
   final List<BarChartGroupData> _barChartData = [];
   bool _isLoading = true;
-  final List<String> _weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  final List<String> _weekDays = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun'
+  ];
 
   @override
   void initState() {
     super.initState();
-    fetchAndDisplayWeeklyStepData();
+    //  fetchAndDisplayWeeklyStepData();
   }
 
-  Future<void> fetchAndDisplayWeeklyStepData() async {
+  /*  Future<void> fetchAndDisplayWeeklyStepData() async {
     final weeklySteps = await fetchWeeklyStepData();
 
-    if (!mounted) return;  // Ensure widget is still mounted
+    if (!mounted) return; // Ensure widget is still mounted
 
     setState(() {
       _barChartData.clear();
@@ -46,7 +54,7 @@ class _HealthDataPageState extends State<HealthDataPage> {
       _isLoading = false;
     });
   }
-
+ */
   @override
   void dispose() {
     // Clean up any resources if needed in the future
@@ -62,59 +70,67 @@ class _HealthDataPageState extends State<HealthDataPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          height: 400,
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.spaceAround,
-              maxY: _barChartData.isNotEmpty
-                  ? _barChartData.map((data) => data.barRods[0].toY).reduce((a, b) => a > b ? a : b) * 1.2
-                  : 10000,
-              barGroups: _barChartData,
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    interval: 1000,  // Adjust this based on your data range
-                    getTitlesWidget: (double value, TitleMeta meta) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Text(
-                          value.toInt().toString(),
-                          style: const TextStyle(color: Colors.black, fontSize: 10),
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                height: 400,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: _barChartData.isNotEmpty
+                        ? _barChartData
+                                .map((data) => data.barRods[0].toY)
+                                .reduce((a, b) => a > b ? a : b) *
+                            1.2
+                        : 10000,
+                    barGroups: _barChartData,
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          interval:
+                              1000, // Adjust this based on your data range
+                          getTitlesWidget: (double value, TitleMeta meta) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text(
+                                value.toInt().toString(),
+                                style: const TextStyle(
+                                    color: Colors.black, fontSize: 10),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (double value, TitleMeta meta) {
+                            return Text(
+                              _weekDays[value.toInt()],
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 10),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    gridData: const FlGridData(
+                      show: true,
+                      drawHorizontalLine: true,
+                      drawVerticalLine: false,
+                      horizontalInterval:
+                          100, // Adjust this based on your data range
+                    ),
+                    borderData: FlBorderData(
+                      show: true,
+                      border:
+                          Border.all(color: const Color(0xff37434d), width: 1),
+                    ),
                   ),
                 ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (double value, TitleMeta meta) {
-                      return Text(
-                        _weekDays[value.toInt()],
-                        style: const TextStyle(color: Colors.black, fontSize: 10),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              gridData: const FlGridData(
-                show: true,
-                drawHorizontalLine: true,
-                drawVerticalLine: false,
-                horizontalInterval: 100,  // Adjust this based on your data range
-              ),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: const Color(0xff37434d), width: 1),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
