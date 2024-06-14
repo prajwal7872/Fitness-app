@@ -42,10 +42,11 @@ class _AuthScreenState extends State<AuthScreen> {
           email: _enteredEmail,
           password: _enteredPassword,
         );
+
         if (userCredentials.user!.emailVerified) {
           if (!mounted) return;
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => HealthDataPage()),
+            MaterialPageRoute(builder: (context) => const HealthDataPage()),
           );
         } else {
           if (!mounted) return;
