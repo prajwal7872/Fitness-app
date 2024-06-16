@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health/health.dart';
 import 'package:loginpage/screens/auth.dart';
+import 'package:loginpage/screens/health_services.dart';
 import 'package:loginpage/screens/homescreen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -12,6 +13,7 @@ void main() async {
   await Permission.activityRecognition.request();
   await Permission.location.request();
   Health().configure(useHealthConnectIfAvailable: true);
+  await fetchWeeklyStepData();
   runApp(
     const MyApp(),
   );
