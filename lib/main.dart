@@ -13,7 +13,7 @@ void main() async {
   await Permission.activityRecognition.request();
   await Permission.location.request();
   Health().configure(useHealthConnectIfAvailable: true);
-  await fetchWeeklyStepData();
+  await fetchWeeklyCalorieData();
   runApp(
     const MyApp(),
   );
