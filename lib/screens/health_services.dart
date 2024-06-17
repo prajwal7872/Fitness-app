@@ -1,94 +1,71 @@
-// ignore_for_file: avoid_print
 
 import 'package:health/health.dart';
 import 'dart:convert';
-
 import 'package:intl/intl.dart';
 
-// Future<void> fetchStepData() async {
-//   List<HealthDataPoint> _healthDataList = [];
-//   int steps = 0;
-//   final now = DateTime.now();
-//   final midnight = DateTime(now.year, now.month, now.day);
 
-//   bool stepsPermission =
-//       await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
-//   if (!stepsPermission) {
-//     stepsPermission =
-//         await Health().requestAuthorization([HealthDataType.STEPS]);
-//   }
-
-//   if (stepsPermission) {
-//     try {
-//       steps = (await Health().getTotalStepsInInterval(midnight, now))!;
-//     } catch (error) {
-//       print("Exception in getTotalStepsInInterval: $error");
-//     }
-
-//     print('Total number of steps: $steps');
-//   } else {
-//     print("Authorization not granted - error in authorization");
-//   }
-// }
-
-Future<Map<String, double>> fetchWeeklyStepData() async {
+Future<Map<String, double>> fetchWeeklyCalorieData() async {
   final now = DateTime.now();
-  final midnightOneWeekAgo =
-      DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+  final midnightOneWeekAgo = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
 
-  bool stepsPermission =
-      await Health().hasPermissions([HealthDataType.STEPS]) ?? false;
+  bool caloriePermission = await Health().hasPermissions([HealthDataType.ACTIVE_ENERGY_BURNED]) ?? false;
 
-  if (!stepsPermission) {
+  if (!caloriePermission) {
     try {
-      stepsPermission =
-          await Health().requestAuthorization([HealthDataType.STEPS]);
+      caloriePermission = await Health().requestAuthorization([HealthDataType.ACTIVE_ENERGY_BURNED]);
     } catch (e) {
       print('Error requesting authorization: $e');
       return {};
     }
   }
 
-  if (!stepsPermission) {
+  if (!caloriePermission) {
     print("Authorization not granted - error in authorization");
     return {};
   }
 
   try {
-    final stepsData = await Health().getHealthDataFromTypes(
-      types: [HealthDataType.STEPS],
+    final calorieData = await Health().getHealthDataFromTypes(
+      types: [HealthDataType.ACTIVE_ENERGY_BURNED],
       startTime: midnightOneWeekAgo,
       endTime: now,
       includeManualEntry: true,
     );
 
-    final jsonData = jsonEncode(stepsData);
-    print("jsonData$jsonData");
+    if (calorieData.isEmpty) {
+      print("No data fetched for the given period");
+      return {};
+    }
+
+    final jsonData = jsonEncode(calorieData);
+    print("jsonData: $jsonData");
     List<dynamic> healthDataList = jsonDecode(jsonData);
 
-    Map<String, double> aggregateStepsByDay(List<dynamic> data) {
-      Map<String, double> stepsByDay = {};
+    Map<String, double> aggregateCalorieByDay(List<dynamic> data) {
+      Map<String, double> calorieByDay = {};
       DateFormat dateFormat = DateFormat('EEE', 'en_US');
 
       for (var entry in data) {
-        double steps = (entry['value']['numeric_value'] as num).toDouble();
+        double calorie = (entry['value']['numeric_value'] as num).toDouble();
         String dateStr = entry['date_from'];
         DateTime dateTime = DateTime.parse(dateStr);
         String dayName = dateFormat.format(dateTime);
 
-        if (stepsByDay.containsKey(dayName)) {
-          stepsByDay[dayName] = stepsByDay[dayName]! + steps;
+        if (calorieByDay.containsKey(dayName)) {
+          calorieByDay[dayName] = calorieByDay[dayName]! + calorie;
         } else {
-          stepsByDay[dayName] = steps;
+          calorieByDay[dayName] = calorie;
         }
       }
 
-      return stepsByDay;
+      return calorieByDay;
     }
 
-    return aggregateStepsByDay(healthDataList);
+    return aggregateCalorieByDay(healthDataList);
   } catch (error) {
-    print("Exception in fetching or processing step data: $error");
+    print("Exception in fetching or processing calorie data: $error");
     return {};
   }
 }
+
+

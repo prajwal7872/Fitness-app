@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:loginpage/screens/health_services.dart';
 
+
+
+
+// Widget to display the health data in a bar chart
 class HealthDataPage extends StatefulWidget {
   const HealthDataPage({super.key});
 
@@ -12,37 +16,30 @@ class HealthDataPage extends StatefulWidget {
 class _HealthDataPageState extends State<HealthDataPage> {
   final List<BarChartGroupData> _barChartData = [];
   bool _isLoading = true;
-  final List<String> _weekDays = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun'
-  ];
+  final List<String> _weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
   void initState() {
     super.initState();
-    //  fetchAndDisplayWeeklyStepData();
+    fetchAndDisplayWeeklyCalorieData();
   }
 
-  /*  Future<void> fetchAndDisplayWeeklyStepData() async {
-    final weeklySteps = await fetchWeeklyStepData();
-
-    if (!mounted) return; // Ensure widget is still mounted
+  Future<void> fetchAndDisplayWeeklyCalorieData() async {
+    final weeklyCalorie = await fetchWeeklyCalorieData();
+    print('Weekly Calorie Data: $weeklyCalorie');
+    if (!mounted) return; 
 
     setState(() {
       _barChartData.clear();
       int index = 0;
-      weeklySteps.forEach((day, steps) {
+      _weekDays.forEach((day) {
+        double calorie = weeklyCalorie[day] ?? 0.0;
         _barChartData.add(
           BarChartGroupData(
             x: index,
             barRods: [
               BarChartRodData(
-                toY: steps.toDouble(),
+                toY: calorie,
                 color: Colors.blue,
               ),
             ],
@@ -54,18 +51,12 @@ class _HealthDataPageState extends State<HealthDataPage> {
       _isLoading = false;
     });
   }
- */
-  @override
-  void dispose() {
-    // Clean up any resources if needed in the future
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Weekly Steps Data'),
+        title: const Text('Weekly Active Energy Burned Data'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -88,15 +79,13 @@ class _HealthDataPageState extends State<HealthDataPage> {
                         sideTitles: SideTitles(
                           showTitles: true,
                           reservedSize: 40,
-                          interval:
-                              1000, // Adjust this based on your data range
+                          interval: 1000,
                           getTitlesWidget: (double value, TitleMeta meta) {
                             return Padding(
                               padding: const EdgeInsets.only(right: 8.0),
                               child: Text(
                                 value.toInt().toString(),
-                                style: const TextStyle(
-                                    color: Colors.black, fontSize: 10),
+                                style: const TextStyle(color: Colors.black, fontSize: 10),
                               ),
                             );
                           },
@@ -108,8 +97,7 @@ class _HealthDataPageState extends State<HealthDataPage> {
                           getTitlesWidget: (double value, TitleMeta meta) {
                             return Text(
                               _weekDays[value.toInt()],
-                              style: const TextStyle(
-                                  color: Colors.black, fontSize: 10),
+                              style: const TextStyle(color: Colors.black, fontSize: 10),
                             );
                           },
                         ),
@@ -119,13 +107,11 @@ class _HealthDataPageState extends State<HealthDataPage> {
                       show: true,
                       drawHorizontalLine: true,
                       drawVerticalLine: false,
-                      horizontalInterval:
-                          100, // Adjust this based on your data range
+                      horizontalInterval: 100,
                     ),
                     borderData: FlBorderData(
                       show: true,
-                      border:
-                          Border.all(color: const Color(0xff37434d), width: 1),
+                      border: Border.all(color: const Color(0xff37434d), width: 1),
                     ),
                   ),
                 ),
