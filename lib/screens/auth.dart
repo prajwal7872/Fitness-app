@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:loginpage/screens/homescreen.dart';
+import 'package:loginpage/screens/health_data_page.dart';
 import 'package:loginpage/widgets/card.dart';
 
 final _firebase = FirebaseAuth.instance;
