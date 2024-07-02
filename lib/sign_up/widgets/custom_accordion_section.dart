@@ -1,9 +1,8 @@
+// lib/ui/widgets/custom_accordion_section.dart
 import 'package:flutter/material.dart';
 import 'package:accordion/accordion.dart';
 
 class CustomAccordionSection extends AccordionSection {
-  final Color contentBackgroundColor;
-  final Color headerBackgroundColor;
   final String question;
   final List<String> answers;
   final String? selectedAnswer;
@@ -12,13 +11,15 @@ class CustomAccordionSection extends AccordionSection {
   CustomAccordionSection({
     super.key,
     required super.isOpen,
-    required this.contentBackgroundColor,
-    required this.headerBackgroundColor,
+    required Color contentBackgroundColor,
+    required Color headerBackgroundColor,
     required this.question,
     required this.answers,
     required this.selectedAnswer,
     required this.onChanged,
   }) : super(
+          headerBackgroundColor: headerBackgroundColor,
+          contentBackgroundColor: contentBackgroundColor,
           header: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
@@ -39,4 +40,10 @@ class CustomAccordionSection extends AccordionSection {
             }).toList(),
           ),
         );
+
+  @override
+  Color get contentBackgroundColor => super.contentBackgroundColor!;
+
+  @override
+  Color get headerBackgroundColor => super.headerBackgroundColor!;
 }
