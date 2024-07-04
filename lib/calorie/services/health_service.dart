@@ -5,13 +5,17 @@ import 'package:intl/intl.dart';
 class HealthService {
   Future<Map<String, double>> fetchWeeklyCalorieData() async {
     final now = DateTime.now();
-    final midnightOneWeekAgo = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+    final midnightOneWeekAgo = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: 6));
 
-    bool caloriePermission = await Health().hasPermissions([HealthDataType.TOTAL_CALORIES_BURNED]) ?? false;
+    bool caloriePermission =
+        await Health().hasPermissions([HealthDataType.TOTAL_CALORIES_BURNED]) ??
+            false;
 
     if (!caloriePermission) {
       try {
-        caloriePermission = await Health().requestAuthorization([HealthDataType.TOTAL_CALORIES_BURNED]);
+        caloriePermission = await Health()
+            .requestAuthorization([HealthDataType.TOTAL_CALORIES_BURNED]);
       } catch (e) {
         print('Error requesting authorization: $e');
         return {};

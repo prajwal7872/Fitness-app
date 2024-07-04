@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/services/health_service.dart';
+import 'package:loginpage/calorie/services/health_service.dart';
 import 'calorie_event.dart';
 import 'calorie_state.dart';
 
@@ -19,5 +19,3 @@ class CalorieBloc extends Bloc<CalorieEvent, CalorieState> {
     });
   }
 }
-
-

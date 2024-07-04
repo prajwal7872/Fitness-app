@@ -3,12 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health/health.dart';
-import 'package:loginpage/bloc/calorie_bloc.dart';
-import 'package:loginpage/bloc/calorie_event.dart';
+import 'package:loginpage/calorie/bloc/calorie_bloc.dart';
+import 'package:loginpage/calorie/bloc/calorie_event.dart';
+import 'package:loginpage/sign_up/bloc/question_event.dart';
+import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
+import 'package:loginpage/sign_up/screens/my_home_page.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:loginpage/screens/auth.dart';
-import 'package:loginpage/screens/health_data_page.dart';
-import 'package:loginpage/services/health_service.dart';
+import 'package:loginpage/calorie/screens/auth.dart';
+import 'package:loginpage/calorie/screens/health_data_page.dart';
+import 'package:loginpage/calorie/services/health_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +33,10 @@ class MyApp extends StatelessWidget {
         BlocProvider<CalorieBloc>(
           create: (context) =>
               CalorieBloc(HealthService())..add(FetchWeeklyCalorieData()),
+        ),
+        BlocProvider(
+          create: (_) => QuestionBloc()..add(LoadQuestions()),
+          child: const MyHomePage(),
         ),
       ],
       child: MaterialApp(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/bloc/calorie_bloc.dart';
-import 'package:loginpage/bloc/calorie_event.dart';
-import 'package:loginpage/bloc/calorie_state.dart';
-import 'package:loginpage/widgets/calorie_chart.dart';
+import 'package:loginpage/calorie/bloc/calorie_bloc.dart';
+import 'package:loginpage/calorie/bloc/calorie_event.dart';
+import 'package:loginpage/calorie/bloc/calorie_state.dart';
+import 'package:loginpage/calorie/widgets/calorie_chart.dart';
 
 class HealthDataPage extends StatefulWidget {
   const HealthDataPage({super.key});
