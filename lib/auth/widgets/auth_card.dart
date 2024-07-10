@@ -67,7 +67,8 @@ class AuthCard extends StatelessWidget {
                   ElevatedButton(
                     onPressed: onSubmit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
                     ),
                     child: Text(isLogin ? 'Login' : 'Signup'),
                   ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-import 'package:loginpage/sign_up/screens/my_home_page.dart';
 
 class CalorieChart extends StatelessWidget {
   final Map<String, double> weeklyCalorieData;
@@ -129,18 +128,6 @@ class CalorieChart extends StatelessWidget {
               )),
             ),
             const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyHomePage()),
-                );
-              },
-              child: const Text(
-                'UI Page',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
           ],
         ),
       ),

@@ -7,6 +7,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   QuestionBloc() : super(QuestionsLoading()) {
     on<LoadQuestions>(_onLoadQuestions);
     on<AnswerSelected>(_onAnswerSelected);
+    on<ChangeOpenSection>(_onChangeOpenSection);
   }
 
   void _onLoadQuestions(LoadQuestions event, Emitter<QuestionState> emit) {
@@ -39,7 +40,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       Question('Have you had any surgeries in the past?', ['Yes', 'No']),
     ];
 
-    emit(const QuestionsLoaded(questions, {}));
+    emit(const QuestionsLoaded(questions, {}, 0, 0));
   }
 
   void _onAnswerSelected(AnswerSelected event, Emitter<QuestionState> emit) {
@@ -49,7 +50,17 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           Map<int, String?>.from(currentState.selectedAnswers)
             ..[event.questionIndex] = event.answer;
 
-      emit(QuestionsLoaded(currentState.questions, updatedAnswers));
+      emit(QuestionsLoaded(currentState.questions, updatedAnswers,
+          currentState.openSectionIndex, currentState.currentIndex));
+    }
+  }
+
+  void _onChangeOpenSection(
+      ChangeOpenSection event, Emitter<QuestionState> emit) {
+    if (state is QuestionsLoaded) {
+      final currentState = state as QuestionsLoaded;
+      emit(QuestionsLoaded(currentState.questions, currentState.selectedAnswers,
+          event.newIndex, currentState.currentIndex));
     }
   }
 }
