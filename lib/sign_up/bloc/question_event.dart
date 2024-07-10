@@ -27,3 +27,12 @@ class ChangeOpenSection extends QuestionEvent {
   @override
   List<Object> get props => [newIndex];
 }
+
+class SetPageIndex extends QuestionEvent {
+  final int pageIndex;
+
+  const SetPageIndex(this.pageIndex);
+
+  @override
+  List<Object> get props => [pageIndex];
+}

@@ -53,48 +53,54 @@ class _MyHomePageState extends State<MyHomePage> {
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
                   if (state is QuestionsLoaded) {
+                    final indexSet = state.pageIndexes;
+                    print('indexSet $indexSet');
+
                     return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        9,
-                        (index) => SizedBox(
-                          width: 44,
+                          (state.questions.length / 3).ceil(), (index) {
+                        // print('inside timeline $index');
+
+                        bool activeIndex = indexSet.contains(index + 1);
+                        // print('accept $activeIndex');
+
+                        return SizedBox(
+                          // width: 44,
                           child: TimelineTile(
                             axis: TimelineAxis.horizontal,
                             alignment: TimelineAlign.center,
-                            beforeLineStyle: const LineStyle(
-                                color: Colors.black, thickness: 2),
-                            isFirst: index == 0,
-                            isLast: index == 8,
+                            isFirst: index == 0 ? true : false,
+                            isLast:
+                                (state.questions.length / 3).ceil() == index + 1
+                                    ? true
+                                    : false,
                             indicatorStyle: IndicatorStyle(
-                              width: 24,
-                              height: 24,
-                              color: Colors.transparent,
-                              padding: const EdgeInsets.all(0),
-                              indicator: Container(
-                                decoration: BoxDecoration(
-                                  color: index < state.currentIndex
-                                      ? Colors.black
-                                      : Colors.white,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.black,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: index < state.currentIndex
-                                    ? const Center(
-                                        child: Icon(
-                                          Icons.check,
-                                          size: 14,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : null,
+                              // width: 23.w,
+                              // height: 23.h,
+                              drawGap: true,
+                              // padding: EdgeInsets.all(1),
+                              color: Colors.white,
+                              iconStyle: IconStyle(
+                                fontSize: 22,
+                                iconData: activeIndex
+                                    ? Icons.check_circle
+                                    : Icons.circle,
+                                color:
+                                    activeIndex ? Colors.green : Colors.black,
                               ),
                             ),
+                            beforeLineStyle: LineStyle(
+                              color: activeIndex ? Colors.green : Colors.black,
+                              thickness: 3,
+                            ),
+                            afterLineStyle: LineStyle(
+                              color: activeIndex ? Colors.green : Colors.black,
+                              thickness: 3,
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }),
                     );
                   } else {
                     return const SizedBox();
@@ -113,6 +119,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       controller: _pageController,
                       itemCount: (state.questions.length / 3).ceil(),
                       onPageChanged: (index) {
+                        print('insidee onpage change $index');
+
                         context
                             .read<QuestionBloc>()
                             .add(ChangeOpenSection(index = 0));
@@ -125,6 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             state.questions.sublist(startIndex, endIndex);
 
                         return AccordionWidget(
+                          pageIndex: index + 1,
                           questions: pageQuestions,
                           selectedAnswers: state.selectedAnswers,
                           pageController: _pageController,

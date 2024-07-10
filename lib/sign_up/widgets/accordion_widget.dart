@@ -10,12 +10,14 @@ import 'package:loginpage/sign_up/bloc/question_state.dart';
 import 'package:loginpage/sign_up/widgets/custom_accordion_section.dart';
 
 class AccordionWidget extends StatelessWidget {
+  final int pageIndex;
   final List<Question> questions;
   final Map<int, String?> selectedAnswers;
   final PageController pageController;
 
   const AccordionWidget({
     super.key,
+    required this.pageIndex,
     required this.questions,
     required this.selectedAnswers,
     required this.pageController,
@@ -47,10 +49,15 @@ class AccordionWidget extends StatelessWidget {
     );
   }
 
-  void _handleAnswerSelection(BuildContext context, int index, String value) {
-    context.read<QuestionBloc>().add(AnswerSelected(index, value));
-    var updatedAnswers = Map<int, String?>.from(selectedAnswers)
-      ..[index] = value;
+  void _handleAnswerSelection(
+      BuildContext context, int index, String value, int id) {
+    print('inside handle answer $index $id $value');
+
+    // context.read<QuestionBloc>().add(AnswerSelected(index, value));
+    context.read<QuestionBloc>().add(AnswerSelected(id, value));
+    var updatedAnswers = Map<int, String?>.from(selectedAnswers)..[id] = value;
+
+    print('updatedAns $updatedAnswers');
 
     // Calculate the start and end index of the current page
     final currentPage = (index / 3).floor();
@@ -60,9 +67,9 @@ class AccordionWidget extends StatelessWidget {
     // Check if all questions on the current page are answered
     bool allQuestionsOnCurrentPageAnswered = true;
     for (int i = startIndex; i < endIndex; i++) {
-      var updatedanswers = updatedAnswers[i];
-      print("updatedAnswers[i]$updatedanswers");
-      if (updatedAnswers[i] == null) {
+      var updatedanswers = updatedAnswers[questions[i].id];
+      print("updatedAnswers[i] $updatedanswers");
+      if (updatedAnswers[questions[i].id] == null) {
         allQuestionsOnCurrentPageAnswered = false;
 
         break;
@@ -72,15 +79,16 @@ class AccordionWidget extends StatelessWidget {
     // If all questions on the current page are answered, navigate to the next page
     if (allQuestionsOnCurrentPageAnswered) {
       print(
-          "allQuestionsOnCurrentPageAnswered$allQuestionsOnCurrentPageAnswered");
-
+          "allQuestionsOnCurrentPageAnswered $allQuestionsOnCurrentPageAnswered");
+      context.read<QuestionBloc>().add(ChangeOpenSection(index + 1));
+      print('pageIndex $pageIndex');
+      context.read<QuestionBloc>().add(SetPageIndex(pageIndex));
       pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
 
       // Ensure the open section is reset or handled correctly after navigation
-      context.read<QuestionBloc>().add(ChangeOpenSection(index + 1));
     } else if (index < questions.length - 1) {
       context.read<QuestionBloc>().add(ChangeOpenSection(index + 1));
     } else {
@@ -97,9 +105,10 @@ class AccordionWidget extends StatelessWidget {
             children: questions.asMap().entries.map((entry) {
               int index = entry.key;
               Question questionData = entry.value;
-
+              int id = questionData.id;
               Color contentBgColor;
               Color headerBgColor;
+
               switch (index % 6) {
                 case 0:
                   contentBgColor = Colors.transparent;
@@ -126,10 +135,10 @@ class AccordionWidget extends StatelessWidget {
                 headerBackgroundColor: headerBgColor,
                 question: questionData.question,
                 answers: questionData.answers,
-                selectedAnswer: selectedAnswers[index],
+                selectedAnswer: selectedAnswers[id],
                 onChanged: (String? value) {
                   if (value != null) {
-                    _handleAnswerSelection(context, index, value);
+                    _handleAnswerSelection(context, index, value, id);
                   }
                 },
               );

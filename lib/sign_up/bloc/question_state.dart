@@ -15,13 +15,14 @@ class QuestionsLoaded extends QuestionState {
   final Map<int, String?> selectedAnswers;
   final int openSectionIndex;
   final int currentIndex;
+  final Set<int> pageIndexes;
 
   const QuestionsLoaded(this.questions, this.selectedAnswers,
-      this.openSectionIndex, this.currentIndex);
+      this.openSectionIndex, this.currentIndex, this.pageIndexes);
 
   @override
   List<Object> get props =>
-      [questions, selectedAnswers, openSectionIndex, currentIndex];
+      [questions, selectedAnswers, openSectionIndex, currentIndex, pageIndexes];
 }
 
 class QuestionsError extends QuestionState {
