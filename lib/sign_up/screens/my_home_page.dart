@@ -14,7 +14,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 0;
   final PageController _pageController = PageController();
 
   @override
@@ -51,48 +50,56 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             SizedBox(
               height: 50,
-              child: Row(
-                children: List.generate(
-                  9,
-                  (index) => SizedBox(
-                    width: 44,
-                    child: TimelineTile(
-                      axis: TimelineAxis.horizontal,
-                      alignment: TimelineAlign.center,
-                      beforeLineStyle:
-                          const LineStyle(color: Colors.black, thickness: 2),
-                      isFirst: index == 0,
-                      isLast: index == 8,
-                      indicatorStyle: IndicatorStyle(
-                        width: 24,
-                        height: 24,
-                        color: Colors.transparent,
-                        padding: const EdgeInsets.all(0),
-                        indicator: Container(
-                          decoration: BoxDecoration(
-                            color: index < _currentIndex
-                                ? Colors.black
-                                : Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.black,
-                              width: 2,
+              child: BlocBuilder<QuestionBloc, QuestionState>(
+                builder: (context, state) {
+                  if (state is QuestionsLoaded) {
+                    return Row(
+                      children: List.generate(
+                        9,
+                        (index) => SizedBox(
+                          width: 44,
+                          child: TimelineTile(
+                            axis: TimelineAxis.horizontal,
+                            alignment: TimelineAlign.center,
+                            beforeLineStyle: const LineStyle(
+                                color: Colors.black, thickness: 2),
+                            isFirst: index == 0,
+                            isLast: index == 8,
+                            indicatorStyle: IndicatorStyle(
+                              width: 24,
+                              height: 24,
+                              color: Colors.transparent,
+                              padding: const EdgeInsets.all(0),
+                              indicator: Container(
+                                decoration: BoxDecoration(
+                                  color: index < state.currentIndex
+                                      ? Colors.black
+                                      : Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.black,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: index < state.currentIndex
+                                    ? const Center(
+                                        child: Icon(
+                                          Icons.check,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : null,
+                              ),
                             ),
                           ),
-                          child: index < _currentIndex
-                              ? const Center(
-                                  child: Icon(
-                                    Icons.check,
-                                    size: 14,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : null,
                         ),
                       ),
-                    ),
-                  ),
-                ),
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
+                },
               ),
             ),
             Expanded(
@@ -104,28 +111,22 @@ class _MyHomePageState extends State<MyHomePage> {
                     return PageView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       controller: _pageController,
-                      itemCount: (state.questions.length / 6).ceil(),
+                      itemCount: (state.questions.length / 3).ceil(),
                       onPageChanged: (index) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
+                        context
+                            .read<QuestionBloc>()
+                            .add(ChangeOpenSection(index = 0));
                       },
                       itemBuilder: (context, index) {
-                        final startIndex = index * 6;
+                        final startIndex = index * 3;
                         final endIndex =
-                            (index * 6 + 6).clamp(0, state.questions.length);
+                            (index * 3 + 3).clamp(0, state.questions.length);
                         final pageQuestions =
                             state.questions.sublist(startIndex, endIndex);
 
                         return AccordionWidget(
                           questions: pageQuestions,
                           selectedAnswers: state.selectedAnswers,
-                          onChanged: (entry) {
-                            context.read<QuestionBloc>().add(
-                                  AnswerSelected(
-                                      entry.key + startIndex, entry.value!),
-                                );
-                          },
                           pageController: _pageController,
                         );
                       },

@@ -13,11 +13,15 @@ class QuestionsLoading extends QuestionState {}
 class QuestionsLoaded extends QuestionState {
   final List<Question> questions;
   final Map<int, String?> selectedAnswers;
+  final int openSectionIndex;
+  final int currentIndex;
 
-  const QuestionsLoaded(this.questions, this.selectedAnswers);
+  const QuestionsLoaded(this.questions, this.selectedAnswers,
+      this.openSectionIndex, this.currentIndex);
 
   @override
-  List<Object> get props => [questions, selectedAnswers];
+  List<Object> get props =>
+      [questions, selectedAnswers, openSectionIndex, currentIndex];
 }
 
 class QuestionsError extends QuestionState {

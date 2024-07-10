@@ -18,3 +18,12 @@ class AnswerSelected extends QuestionEvent {
   @override
   List<Object> get props => [questionIndex, answer];
 }
+
+class ChangeOpenSection extends QuestionEvent {
+  final int newIndex;
+
+  const ChangeOpenSection(this.newIndex);
+
+  @override
+  List<Object> get props => [newIndex];
+}

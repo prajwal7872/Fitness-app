@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health/health.dart';
+import 'package:loginpage/auth/Screens/auth_screen.dart';
+import 'package:loginpage/auth/bloc/auth_bloc.dart';
 import 'package:loginpage/calorie/bloc/calorie_bloc.dart';
 import 'package:loginpage/calorie/bloc/calorie_event.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
 import 'package:loginpage/sign_up/screens/my_home_page.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:loginpage/calorie/screens/auth.dart';
-import 'package:loginpage/calorie/screens/health_data_page.dart';
 import 'package:loginpage/calorie/services/health_service.dart';
 
 void main() async {
@@ -36,11 +36,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => QuestionBloc()..add(LoadQuestions()),
-          child: const MyHomePage(),
+        ),
+        BlocProvider(
+          create: (context) => AuthBloc(FirebaseAuth.instance),
         ),
       ],
       child: MaterialApp(
-        title: 'Flutter Auth',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
@@ -63,7 +64,7 @@ class AuthWrapper extends StatelessWidget {
           if (user == null) {
             return const AuthScreen();
           } else if (user.emailVerified) {
-            return const HealthDataPage();
+            return const MyHomePage();
           } else {
             return const AuthScreen();
           }
