@@ -16,6 +16,66 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final PageController _pageController = PageController();
 
+  void _handleAnswerSelection(BuildContext context) {
+    final state = context.read<QuestionBloc>().state;
+
+    if (state is QuestionsLoaded) {
+      final updatedAnswers = Map<int, String?>.from(state.selectedAnswers);
+
+      // Calculate the start and end index of the current page
+      final currentPage = _pageController.page!.toInt();
+      final startIndex = currentPage * 3;
+      final endIndex = (currentPage * 3 + 3).clamp(0, state.questions.length);
+
+      // Check if all questions on the current page are answered
+      bool allQuestionsOnCurrentPageAnswered = true;
+      for (int i = startIndex; i < endIndex; i++) {
+        if (updatedAnswers[state.questions[i].id] == null) {
+          allQuestionsOnCurrentPageAnswered = false;
+          break;
+        }
+      }
+
+      // If all questions on the current page are answered, navigate to the next page
+      if (allQuestionsOnCurrentPageAnswered) {
+        context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
+        context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        _showValidationDialog(context);
+      }
+    }
+  }
+
+  void _showValidationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Something Went Wrong',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Please answer all questions before proceeding.',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,103 +105,127 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            SizedBox(
-              height: 50,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 50,
+                  child: BlocBuilder<QuestionBloc, QuestionState>(
+                    builder: (context, state) {
+                      if (state is QuestionsLoaded) {
+                        final indexSet = state.pageIndexes;
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                              (state.questions.length / 3).ceil(), (index) {
+                            bool activeIndex = indexSet.contains(index + 1);
+
+                            return SizedBox(
+                              child: TimelineTile(
+                                axis: TimelineAxis.horizontal,
+                                alignment: TimelineAlign.center,
+                                isFirst: index == 0,
+                                isLast: (state.questions.length / 3).ceil() ==
+                                    index + 1,
+                                indicatorStyle: IndicatorStyle(
+                                  drawGap: true,
+                                  color: Colors.white,
+                                  iconStyle: IconStyle(
+                                    fontSize: 22,
+                                    iconData: activeIndex
+                                        ? Icons.check_circle
+                                        : Icons.circle,
+                                    color: activeIndex
+                                        ? Colors.green
+                                        : Colors.black,
+                                  ),
+                                ),
+                                beforeLineStyle: LineStyle(
+                                  color:
+                                      activeIndex ? Colors.green : Colors.black,
+                                  thickness: 3,
+                                ),
+                                afterLineStyle: LineStyle(
+                                  color:
+                                      activeIndex ? Colors.green : Colors.black,
+                                  thickness: 3,
+                                ),
+                              ),
+                            );
+                          }),
+                        );
+                      } else {
+                        return const SizedBox();
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: BlocBuilder<QuestionBloc, QuestionState>(
+                    builder: (context, state) {
+                      if (state is QuestionsLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is QuestionsLoaded) {
+                        return PageView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: _pageController,
+                          itemCount: (state.questions.length / 3).ceil(),
+                          onPageChanged: (index) {
+                            context
+                                .read<QuestionBloc>()
+                                .add(ChangeOpenSection(index = 0));
+                            context
+                                .read<QuestionBloc>()
+                                .add(CheckAnswers(index));
+                          },
+                          itemBuilder: (context, index) {
+                            final startIndex = index * 3;
+                            final endIndex = (index * 3 + 3)
+                                .clamp(0, state.questions.length);
+                            final pageQuestions =
+                                state.questions.sublist(startIndex, endIndex);
+
+                            return AccordionWidget(
+                              pageIndex: index + 1,
+                              questions: pageQuestions,
+                              selectedAnswers: state.selectedAnswers,
+                              pageController: _pageController,
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(
+                            child: Text('Failed to load questions'));
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
                   if (state is QuestionsLoaded) {
-                    final indexSet = state.pageIndexes;
-                    print('indexSet $indexSet');
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                          (state.questions.length / 3).ceil(), (index) {
-                        // print('inside timeline $index');
-
-                        bool activeIndex = indexSet.contains(index + 1);
-                        // print('accept $activeIndex');
-
-                        return SizedBox(
-                          // width: 44,
-                          child: TimelineTile(
-                            axis: TimelineAxis.horizontal,
-                            alignment: TimelineAlign.center,
-                            isFirst: index == 0 ? true : false,
-                            isLast:
-                                (state.questions.length / 3).ceil() == index + 1
-                                    ? true
-                                    : false,
-                            indicatorStyle: IndicatorStyle(
-                              // width: 23.w,
-                              // height: 23.h,
-                              drawGap: true,
-                              // padding: EdgeInsets.all(1),
-                              color: Colors.white,
-                              iconStyle: IconStyle(
-                                fontSize: 22,
-                                iconData: activeIndex
-                                    ? Icons.check_circle
-                                    : Icons.circle,
-                                color:
-                                    activeIndex ? Colors.green : Colors.black,
-                              ),
-                            ),
-                            beforeLineStyle: LineStyle(
-                              color: activeIndex ? Colors.green : Colors.black,
-                              thickness: 3,
-                            ),
-                            afterLineStyle: LineStyle(
-                              color: activeIndex ? Colors.green : Colors.black,
-                              thickness: 3,
-                            ),
-                          ),
-                        );
-                      }),
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SizedBox(
+                        width: 80,
+                        child: FloatingActionButton(
+                          backgroundColor: state.allQuestionsAnswered
+                              ? Colors.green
+                              : Colors.grey,
+                          onPressed: () {
+                            _handleAnswerSelection(context);
+                          },
+                          child: const Text('Next'),
+                        ),
+                      ),
                     );
                   } else {
                     return const SizedBox();
-                  }
-                },
-              ),
-            ),
-            Expanded(
-              child: BlocBuilder<QuestionBloc, QuestionState>(
-                builder: (context, state) {
-                  if (state is QuestionsLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is QuestionsLoaded) {
-                    return PageView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      controller: _pageController,
-                      itemCount: (state.questions.length / 3).ceil(),
-                      onPageChanged: (index) {
-                        print('insidee onpage change $index');
-
-                        context
-                            .read<QuestionBloc>()
-                            .add(ChangeOpenSection(index = 0));
-                      },
-                      itemBuilder: (context, index) {
-                        final startIndex = index * 3;
-                        final endIndex =
-                            (index * 3 + 3).clamp(0, state.questions.length);
-                        final pageQuestions =
-                            state.questions.sublist(startIndex, endIndex);
-
-                        return AccordionWidget(
-                          pageIndex: index + 1,
-                          questions: pageQuestions,
-                          selectedAnswers: state.selectedAnswers,
-                          pageController: _pageController,
-                        );
-                      },
-                    );
-                  } else {
-                    return const Center(child: Text('Something went wrong!'));
                   }
                 },
               ),

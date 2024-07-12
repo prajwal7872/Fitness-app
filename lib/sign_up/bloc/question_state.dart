@@ -16,13 +16,21 @@ class QuestionsLoaded extends QuestionState {
   final int openSectionIndex;
   final int currentIndex;
   final Set<int> pageIndexes;
+  final bool allQuestionsAnswered;
 
   const QuestionsLoaded(this.questions, this.selectedAnswers,
-      this.openSectionIndex, this.currentIndex, this.pageIndexes);
+      this.openSectionIndex, this.currentIndex, this.pageIndexes,
+      {this.allQuestionsAnswered = false});
 
   @override
-  List<Object> get props =>
-      [questions, selectedAnswers, openSectionIndex, currentIndex, pageIndexes];
+  List<Object> get props => [
+        questions,
+        selectedAnswers,
+        openSectionIndex,
+        currentIndex,
+        pageIndexes,
+        allQuestionsAnswered
+      ];
 }
 
 class QuestionsError extends QuestionState {

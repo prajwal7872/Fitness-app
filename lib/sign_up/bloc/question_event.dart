@@ -36,3 +36,12 @@ class SetPageIndex extends QuestionEvent {
   @override
   List<Object> get props => [pageIndex];
 }
+
+class CheckAnswers extends QuestionEvent {
+  final int pageIndex;
+
+  const CheckAnswers(this.pageIndex);
+
+  @override
+  List<Object> get props => [pageIndex];
+}

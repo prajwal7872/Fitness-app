@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/question_state.dart';
@@ -9,13 +11,14 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     on<AnswerSelected>(_onAnswerSelected);
     on<ChangeOpenSection>(_onChangeOpenSection);
     on<SetPageIndex>(_onSetPageIndex);
+    on<CheckAnswers>(_onCheckAnswers);
   }
 
   void _onLoadQuestions(LoadQuestions event, Emitter<QuestionState> emit) {
     const questions = [
       Question(
           1,
-          'Do you have any Chronic health condition? (e.g, diabetes,hypertenstion)',
+          'Do you have any Chronic health condition? (e.g, diabetes,hypertension)',
           ['Yes', 'No']),
       Question(
           2,
@@ -41,14 +44,14 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           5,
           'How often do you experience symptoms related to your chronic conditions?',
           ['Daily', 'Weekly', 'Monthly', 'Rarely/Never']),
-      Question(6, 'Do you have a family history of any major illnesses',
+      Question(6, 'Do you have a family history of any major illnesses?',
           ['Yes', 'No']),
       Question(7, 'Do you have any known allergies?', ['Yes', 'No']),
       Question(8, 'Have you had any surgeries in the past?', ['Yes', 'No']),
-      Question(9, 'hello heelo', ['yo', 'ho']),
-      Question(10, 'Do you have ?', ['Yes', 'No']),
-      Question(11, 'Have you had ?', ['Yes', 'No']),
-      Question(12, 'hello ', ['yoo', 'hoooo']),
+      Question(9, 'Hello hello', ['Yo', 'Ho']),
+      Question(10, 'Do you have?', ['Yes', 'No']),
+      Question(11, 'Have you had?', ['Yes', 'No']),
+      Question(12, 'Hello', ['Yoo', 'Hoooo']),
     ];
 
     emit(const QuestionsLoaded(questions, {}, 0, 0, {}));
@@ -61,8 +64,6 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           Map<int, String?>.from(currentState.selectedAnswers)
             ..[event.questionIndex] = event.answer;
 
-      print('inside onanswer selected $updatedAnswers');
-
       emit(QuestionsLoaded(
         currentState.questions,
         updatedAnswers,
@@ -70,6 +71,8 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         currentState.currentIndex,
         currentState.pageIndexes,
       ));
+
+      add(CheckAnswers(currentState.currentIndex));
     }
   }
 
@@ -88,7 +91,6 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   }
 
   void _onSetPageIndex(SetPageIndex event, Emitter<QuestionState> emit) {
-    print('inside setPage index ');
     if (state is QuestionsLoaded) {
       final currentState = state as QuestionsLoaded;
       final updatedPageIndexes = Set<int>.from(currentState.pageIndexes)
@@ -99,6 +101,33 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         currentState.openSectionIndex,
         currentState.currentIndex,
         updatedPageIndexes,
+      ));
+    }
+  }
+
+  void _onCheckAnswers(CheckAnswers event, Emitter<QuestionState> emit) {
+    if (state is QuestionsLoaded) {
+      final currentState = state as QuestionsLoaded;
+      final startIndex = event.pageIndex * 3;
+      final endIndex =
+          (event.pageIndex * 3 + 3).clamp(0, currentState.questions.length);
+
+      bool allQuestionsOnCurrentPageAnswered = true;
+      for (int i = startIndex; i < endIndex; i++) {
+        if (currentState.selectedAnswers[currentState.questions[i].id] ==
+            null) {
+          allQuestionsOnCurrentPageAnswered = false;
+          break;
+        }
+      }
+
+      emit(QuestionsLoaded(
+        currentState.questions,
+        currentState.selectedAnswers,
+        currentState.openSectionIndex,
+        currentState.currentIndex,
+        currentState.pageIndexes,
+        allQuestionsAnswered: allQuestionsOnCurrentPageAnswered,
       ));
     }
   }
