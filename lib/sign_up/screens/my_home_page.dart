@@ -247,14 +247,20 @@ class _MyHomePageState extends State<MyHomePage> {
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
                   if (state is QuestionsLoaded) {
+                    final indexSet = state.pageIndexes;
+                    print(indexSet);
+                    final previousButtonColor =
+                        indexSet.contains(1) ? Colors.green : Colors.grey;
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: SizedBox(
                         width: 80,
                         child: FloatingActionButton(
-                          backgroundColor: Colors.grey,
+                          backgroundColor: previousButtonColor,
                           onPressed: () {
-                            _handlePreviousPage(context);
+                            if (indexSet.contains(1)) {
+                              _handlePreviousPage(context);
+                            }
                           },
                           child: const Text('Previous'),
                         ),
