@@ -1,5 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loginpage/auth/Screens/auth_screen.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/question_state.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
@@ -72,6 +75,38 @@ class _MyHomePageState extends State<MyHomePage> {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
+      }
+    }
+  }
+
+  void _handleSubmit(BuildContext context) {
+    final state = context.read<QuestionBloc>().state;
+
+    if (state is QuestionsLoaded) {
+      final updatedAnswers = Map<int, String?>.from(state.selectedAnswers);
+
+      // Calculate the start and end index of the current page
+      final currentPage = _pageController.page!.toInt();
+      final startIndex = currentPage * 3;
+      final endIndex = (currentPage * 3 + 3).clamp(0, state.questions.length);
+
+      // Check if all questions on the current page are answered
+      bool allQuestionsOnCurrentPageAnswered = true;
+      for (int i = startIndex; i < endIndex; i++) {
+        if (updatedAnswers[state.questions[i].id] == null) {
+          allQuestionsOnCurrentPageAnswered = false;
+          break;
+        }
+      }
+
+      // If all questions on the current page are answered, navigate to the next page
+      if (allQuestionsOnCurrentPageAnswered) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AuthScreen()),
+        );
+      } else {
+        _showValidationDialog(context);
       }
     }
   }
@@ -210,11 +245,30 @@ class _MyHomePageState extends State<MyHomePage> {
                             final pageQuestions =
                                 state.questions.sublist(startIndex, endIndex);
 
-                            return AccordionWidget(
-                              pageIndex: index + 1,
-                              questions: pageQuestions,
-                              selectedAnswers: state.selectedAnswers,
-                              pageController: _pageController,
+                            return Column(
+                              children: [
+                                Expanded(
+                                  child: AccordionWidget(
+                                    pageIndex: index + 1,
+                                    questions: pageQuestions,
+                                    selectedAnswers: state.selectedAnswers,
+                                    pageController: _pageController,
+                                  ),
+                                ),
+                                if (index ==
+                                    (state.questions.length / 3).ceil() - 1)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: SizedBox(
+                                      width: 200,
+                                      child: FloatingActionButton(
+                                        backgroundColor: Colors.blue,
+                                        onPressed: () => _handleSubmit(context),
+                                        child: const Text('Submit'),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             );
                           },
                         );
@@ -259,10 +313,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     print(state.currentPageIndex);
                     final previousButtonColor =
                         state.currentPageIndex > 0 ? Colors.green : Colors.grey;
-                    // final indexSet = state.pageIndexes;
-                    // print(indexSet);
-                    // final previousButtonColor =
-                    //     indexSet.contains(1) ? Colors.green : Colors.grey;
+
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: SizedBox(

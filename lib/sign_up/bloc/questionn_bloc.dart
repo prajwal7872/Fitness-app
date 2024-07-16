@@ -11,7 +11,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     on<AnswerSelected>(_onAnswerSelected);
     on<ChangeOpenSection>(_onChangeOpenSection);
     on<SetPageIndex>(_onSetPageIndex);
-    on<UpdateCurrentPageIndex>(_onUpdateCurrentPageIndex); // Add this line
+    on<UpdateCurrentPageIndex>(_onUpdateCurrentPageIndex);
   }
 
   void _onLoadQuestions(LoadQuestions event, Emitter<QuestionState> emit) {
