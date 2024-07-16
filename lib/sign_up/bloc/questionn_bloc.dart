@@ -54,7 +54,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       Question(12, 'Hello', ['Yoo', 'Hoooo']),
     ];
 
-    emit(const QuestionsLoaded(questions, {}, 0, 0, {}, 0));
+    emit(const QuestionsLoaded(questions, {}, 0, 0, {}, 0, false));
   }
 
   void _onAnswerSelected(AnswerSelected event, Emitter<QuestionState> emit) {
@@ -64,13 +64,21 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
           Map<int, String?>.from(currentState.selectedAnswers)
             ..[event.questionIndex] = event.answer;
 
+      final allQuestionsAnswered = _areAllQuestionsAnswered(
+        updatedAnswers,
+        currentState.questions,
+        currentState.currentPageIndex,
+      );
+
       emit(QuestionsLoaded(
-          currentState.questions,
-          updatedAnswers,
-          currentState.openSectionIndex,
-          currentState.currentIndex,
-          currentState.pageIndexes,
-          currentState.currentPageIndex));
+        currentState.questions,
+        updatedAnswers,
+        currentState.openSectionIndex,
+        currentState.currentIndex,
+        currentState.pageIndexes,
+        currentState.currentPageIndex,
+        allQuestionsAnswered,
+      ));
     }
   }
 
@@ -79,12 +87,14 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     if (state is QuestionsLoaded) {
       final currentState = state as QuestionsLoaded;
       emit(QuestionsLoaded(
-          currentState.questions,
-          currentState.selectedAnswers,
-          event.newIndex,
-          currentState.currentIndex,
-          currentState.pageIndexes,
-          currentState.currentPageIndex));
+        currentState.questions,
+        currentState.selectedAnswers,
+        event.newIndex,
+        currentState.currentIndex,
+        currentState.pageIndexes,
+        currentState.currentPageIndex,
+        currentState.allQuestionsAnswered,
+      ));
     }
   }
 
@@ -94,12 +104,14 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       final updatedPageIndexes = Set<int>.from(currentState.pageIndexes)
         ..add(event.pageIndex);
       emit(QuestionsLoaded(
-          currentState.questions,
-          currentState.selectedAnswers,
-          currentState.openSectionIndex,
-          currentState.currentIndex,
-          updatedPageIndexes,
-          currentState.currentPageIndex));
+        currentState.questions,
+        currentState.selectedAnswers,
+        currentState.openSectionIndex,
+        currentState.currentIndex,
+        updatedPageIndexes,
+        currentState.currentPageIndex,
+        currentState.allQuestionsAnswered,
+      ));
     }
   }
 
@@ -107,6 +119,12 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       UpdateCurrentPageIndex event, Emitter<QuestionState> emit) {
     if (state is QuestionsLoaded) {
       final currentState = state as QuestionsLoaded;
+      final allQuestionsAnswered = _areAllQuestionsAnswered(
+        currentState.selectedAnswers,
+        currentState.questions,
+        event.currentPageIndex,
+      );
+
       emit(QuestionsLoaded(
         currentState.questions,
         currentState.selectedAnswers,
@@ -114,7 +132,24 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         currentState.currentIndex,
         currentState.pageIndexes,
         event.currentPageIndex,
+        allQuestionsAnswered,
       ));
     }
+  }
+
+  bool _areAllQuestionsAnswered(
+    Map<int, String?> answers,
+    List<Question> questions,
+    int pageIndex,
+  ) {
+    final startIndex = pageIndex * 3;
+    final endIndex = (pageIndex * 3 + 3).clamp(0, questions.length);
+
+    for (int i = startIndex; i < endIndex; i++) {
+      if (answers[questions[i].id] == null) {
+        return false;
+      }
+    }
+    return true;
   }
 }

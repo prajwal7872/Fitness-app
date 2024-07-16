@@ -1,8 +1,5 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/auth/Screens/auth_screen.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/question_state.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
@@ -39,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
 
-      // If all questions on the current page are answered, navigate to the next page
+      // If all questions on the current page are answered, dispatch events
       if (allQuestionsOnCurrentPageAnswered) {
         context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
         context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
@@ -62,7 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (state is QuestionsLoaded) {
       final currentPage = _pageController.page!.toInt();
-      print('currentpage = $currentPage');
 
       if (currentPage > 0) {
         context.read<QuestionBloc>().add(ChangeOpenSection(currentPage - 1));
@@ -75,38 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
-      }
-    }
-  }
-
-  void _handleSubmit(BuildContext context) {
-    final state = context.read<QuestionBloc>().state;
-
-    if (state is QuestionsLoaded) {
-      final updatedAnswers = Map<int, String?>.from(state.selectedAnswers);
-
-      // Calculate the start and end index of the current page
-      final currentPage = _pageController.page!.toInt();
-      final startIndex = currentPage * 3;
-      final endIndex = (currentPage * 3 + 3).clamp(0, state.questions.length);
-
-      // Check if all questions on the current page are answered
-      bool allQuestionsOnCurrentPageAnswered = true;
-      for (int i = startIndex; i < endIndex; i++) {
-        if (updatedAnswers[state.questions[i].id] == null) {
-          allQuestionsOnCurrentPageAnswered = false;
-          break;
-        }
-      }
-
-      // If all questions on the current page are answered, navigate to the next page
-      if (allQuestionsOnCurrentPageAnswered) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AuthScreen()),
-        );
-      } else {
-        _showValidationDialog(context);
       }
     }
   }
@@ -180,42 +144,46 @@ class _MyHomePageState extends State<MyHomePage> {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
-                              (state.questions.length / 3).ceil(), (index) {
-                            bool activeIndex = indexSet.contains(index + 1);
+                            (state.questions.length / 3).ceil(),
+                            (index) {
+                              bool activeIndex = indexSet.contains(index + 1);
 
-                            return SizedBox(
-                              child: TimelineTile(
-                                axis: TimelineAxis.horizontal,
-                                alignment: TimelineAlign.center,
-                                isFirst: index == 0,
-                                isLast: (state.questions.length / 3).ceil() ==
-                                    index + 1,
-                                indicatorStyle: IndicatorStyle(
-                                  drawGap: true,
-                                  color: Colors.white,
-                                  iconStyle: IconStyle(
-                                    fontSize: 22,
-                                    iconData: activeIndex
-                                        ? Icons.check_circle
-                                        : Icons.circle,
+                              return SizedBox(
+                                child: TimelineTile(
+                                  axis: TimelineAxis.horizontal,
+                                  alignment: TimelineAlign.center,
+                                  isFirst: index == 0,
+                                  isLast: (state.questions.length / 3).ceil() ==
+                                      index + 1,
+                                  indicatorStyle: IndicatorStyle(
+                                    drawGap: true,
+                                    color: Colors.white,
+                                    iconStyle: IconStyle(
+                                      fontSize: 22,
+                                      iconData: activeIndex
+                                          ? Icons.check_circle
+                                          : Icons.circle,
+                                      color: activeIndex
+                                          ? Colors.green
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  beforeLineStyle: LineStyle(
                                     color: activeIndex
                                         ? Colors.green
                                         : Colors.black,
+                                    thickness: 3,
+                                  ),
+                                  afterLineStyle: LineStyle(
+                                    color: activeIndex
+                                        ? Colors.green
+                                        : Colors.black,
+                                    thickness: 3,
                                   ),
                                 ),
-                                beforeLineStyle: LineStyle(
-                                  color:
-                                      activeIndex ? Colors.green : Colors.black,
-                                  thickness: 3,
-                                ),
-                                afterLineStyle: LineStyle(
-                                  color:
-                                      activeIndex ? Colors.green : Colors.black,
-                                  thickness: 3,
-                                ),
-                              ),
-                            );
-                          }),
+                              );
+                            },
+                          ),
                         );
                       } else {
                         return const SizedBox();
@@ -255,19 +223,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     pageController: _pageController,
                                   ),
                                 ),
-                                if (index ==
-                                    (state.questions.length / 3).ceil() - 1)
-                                  Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: SizedBox(
-                                      width: 200,
-                                      child: FloatingActionButton(
-                                        backgroundColor: Colors.blue,
-                                        onPressed: () => _handleSubmit(context),
-                                        child: const Text('Submit'),
-                                      ),
-                                    ),
-                                  ),
                               ],
                             );
                           },
@@ -286,17 +241,27 @@ class _MyHomePageState extends State<MyHomePage> {
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
                   if (state is QuestionsLoaded) {
+                    final isLastPage = state.currentPageIndex >= 3
+                        ? const Text(
+                            'Submit',
+                            style: TextStyle(color: Colors.white),
+                          )
+                        : const Text(
+                            'Next',
+                            style: TextStyle(color: Colors.white),
+                          );
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: SizedBox(
                         width: 80,
                         child: FloatingActionButton(
-                          backgroundColor: Colors.grey,
-                          onPressed: () {
-                            _handleAnswerSelection(context);
-                          },
-                          child: const Text('Next'),
-                        ),
+                            backgroundColor: state.allQuestionsAnswered
+                                ? Colors.green
+                                : Colors.grey,
+                            onPressed: () {
+                              _handleAnswerSelection(context);
+                            },
+                            child: isLastPage),
                       ),
                     );
                   } else {
@@ -310,7 +275,6 @@ class _MyHomePageState extends State<MyHomePage> {
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
                   if (state is QuestionsLoaded) {
-                    print(state.currentPageIndex);
                     final previousButtonColor =
                         state.currentPageIndex > 0 ? Colors.green : Colors.grey;
 
@@ -323,7 +287,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           onPressed: () {
                             _handlePreviousPage(context);
                           },
-                          child: const Text('Previous'),
+                          child: const Text(
+                            'Previous',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
                     );
