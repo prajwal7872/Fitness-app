@@ -40,6 +40,10 @@ class _MyHomePageState extends State<MyHomePage> {
       if (allQuestionsOnCurrentPageAnswered) {
         context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
         context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
+        context
+            .read<QuestionBloc>()
+            .add(UpdateCurrentPageIndex(currentPage + 1));
+
         _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
@@ -55,10 +59,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (state is QuestionsLoaded) {
       final currentPage = _pageController.page!.toInt();
+      print('currentpage = $currentPage');
 
       if (currentPage > 0) {
         context.read<QuestionBloc>().add(ChangeOpenSection(currentPage - 1));
         context.read<QuestionBloc>().add(SetPageIndex(currentPage - 1));
+        context
+            .read<QuestionBloc>()
+            .add(UpdateCurrentPageIndex(currentPage - 1));
+
         _pageController.previousPage(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
@@ -247,10 +256,13 @@ class _MyHomePageState extends State<MyHomePage> {
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
                   if (state is QuestionsLoaded) {
-                    final indexSet = state.pageIndexes;
-                    print(indexSet);
+                    print(state.currentPageIndex);
                     final previousButtonColor =
-                        indexSet.contains(1) ? Colors.green : Colors.grey;
+                        state.currentPageIndex > 0 ? Colors.green : Colors.grey;
+                    // final indexSet = state.pageIndexes;
+                    // print(indexSet);
+                    // final previousButtonColor =
+                    //     indexSet.contains(1) ? Colors.green : Colors.grey;
                     return Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: SizedBox(
@@ -258,9 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: FloatingActionButton(
                           backgroundColor: previousButtonColor,
                           onPressed: () {
-                            if (indexSet.contains(1)) {
-                              _handlePreviousPage(context);
-                            }
+                            _handlePreviousPage(context);
                           },
                           child: const Text('Previous'),
                         ),

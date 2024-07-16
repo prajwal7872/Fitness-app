@@ -16,6 +16,7 @@ class QuestionsLoaded extends QuestionState {
   final int openSectionIndex;
   final int currentIndex;
   final Set<int> pageIndexes;
+  final int currentPageIndex;
 
   const QuestionsLoaded(
     this.questions,
@@ -23,6 +24,7 @@ class QuestionsLoaded extends QuestionState {
     this.openSectionIndex,
     this.currentIndex,
     this.pageIndexes,
+    this.currentPageIndex,
   );
 
   @override
@@ -32,6 +34,7 @@ class QuestionsLoaded extends QuestionState {
         openSectionIndex,
         currentIndex,
         pageIndexes,
+        currentPageIndex,
       ];
 }
 

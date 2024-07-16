@@ -11,6 +11,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     on<AnswerSelected>(_onAnswerSelected);
     on<ChangeOpenSection>(_onChangeOpenSection);
     on<SetPageIndex>(_onSetPageIndex);
+    on<UpdateCurrentPageIndex>(_onUpdateCurrentPageIndex); // Add this line
   }
 
   void _onLoadQuestions(LoadQuestions event, Emitter<QuestionState> emit) {
@@ -53,7 +54,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       Question(12, 'Hello', ['Yoo', 'Hoooo']),
     ];
 
-    emit(const QuestionsLoaded(questions, {}, 0, 0, {}));
+    emit(const QuestionsLoaded(questions, {}, 0, 0, {}, 0));
   }
 
   void _onAnswerSelected(AnswerSelected event, Emitter<QuestionState> emit) {
@@ -64,12 +65,12 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
             ..[event.questionIndex] = event.answer;
 
       emit(QuestionsLoaded(
-        currentState.questions,
-        updatedAnswers,
-        currentState.openSectionIndex,
-        currentState.currentIndex,
-        currentState.pageIndexes,
-      ));
+          currentState.questions,
+          updatedAnswers,
+          currentState.openSectionIndex,
+          currentState.currentIndex,
+          currentState.pageIndexes,
+          currentState.currentPageIndex));
     }
   }
 
@@ -78,12 +79,12 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     if (state is QuestionsLoaded) {
       final currentState = state as QuestionsLoaded;
       emit(QuestionsLoaded(
-        currentState.questions,
-        currentState.selectedAnswers,
-        event.newIndex,
-        currentState.currentIndex,
-        currentState.pageIndexes,
-      ));
+          currentState.questions,
+          currentState.selectedAnswers,
+          event.newIndex,
+          currentState.currentIndex,
+          currentState.pageIndexes,
+          currentState.currentPageIndex));
     }
   }
 
@@ -93,11 +94,26 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
       final updatedPageIndexes = Set<int>.from(currentState.pageIndexes)
         ..add(event.pageIndex);
       emit(QuestionsLoaded(
+          currentState.questions,
+          currentState.selectedAnswers,
+          currentState.openSectionIndex,
+          currentState.currentIndex,
+          updatedPageIndexes,
+          currentState.currentPageIndex));
+    }
+  }
+
+  void _onUpdateCurrentPageIndex(
+      UpdateCurrentPageIndex event, Emitter<QuestionState> emit) {
+    if (state is QuestionsLoaded) {
+      final currentState = state as QuestionsLoaded;
+      emit(QuestionsLoaded(
         currentState.questions,
         currentState.selectedAnswers,
         currentState.openSectionIndex,
         currentState.currentIndex,
-        updatedPageIndexes,
+        currentState.pageIndexes,
+        event.currentPageIndex,
       ));
     }
   }
