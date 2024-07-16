@@ -50,6 +50,23 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  void _handlePreviousPage(BuildContext context) {
+    final state = context.read<QuestionBloc>().state;
+
+    if (state is QuestionsLoaded) {
+      final currentPage = _pageController.page!.toInt();
+
+      if (currentPage > 0) {
+        context.read<QuestionBloc>().add(ChangeOpenSection(currentPage - 1));
+        context.read<QuestionBloc>().add(SetPageIndex(currentPage - 1));
+        _pageController.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
   void _showValidationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -176,9 +193,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             context
                                 .read<QuestionBloc>()
                                 .add(ChangeOpenSection(index = 0));
-                            context
-                                .read<QuestionBloc>()
-                                .add(CheckAnswers(index));
                           },
                           itemBuilder: (context, index) {
                             final startIndex = index * 3;
@@ -214,13 +228,35 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: SizedBox(
                         width: 80,
                         child: FloatingActionButton(
-                          backgroundColor: state.allQuestionsAnswered
-                              ? Colors.green
-                              : Colors.grey,
+                          backgroundColor: Colors.grey,
                           onPressed: () {
                             _handleAnswerSelection(context);
                           },
                           child: const Text('Next'),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
+                },
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: BlocBuilder<QuestionBloc, QuestionState>(
+                builder: (context, state) {
+                  if (state is QuestionsLoaded) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SizedBox(
+                        width: 80,
+                        child: FloatingActionButton(
+                          backgroundColor: Colors.grey,
+                          onPressed: () {
+                            _handlePreviousPage(context);
+                          },
+                          child: const Text('Previous'),
                         ),
                       ),
                     );

@@ -11,7 +11,6 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     on<AnswerSelected>(_onAnswerSelected);
     on<ChangeOpenSection>(_onChangeOpenSection);
     on<SetPageIndex>(_onSetPageIndex);
-    on<CheckAnswers>(_onCheckAnswers);
   }
 
   void _onLoadQuestions(LoadQuestions event, Emitter<QuestionState> emit) {
@@ -71,8 +70,6 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         currentState.currentIndex,
         currentState.pageIndexes,
       ));
-
-      add(CheckAnswers(currentState.currentIndex));
     }
   }
 
@@ -101,33 +98,6 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         currentState.openSectionIndex,
         currentState.currentIndex,
         updatedPageIndexes,
-      ));
-    }
-  }
-
-  void _onCheckAnswers(CheckAnswers event, Emitter<QuestionState> emit) {
-    if (state is QuestionsLoaded) {
-      final currentState = state as QuestionsLoaded;
-      final startIndex = event.pageIndex * 3;
-      final endIndex =
-          (event.pageIndex * 3 + 3).clamp(0, currentState.questions.length);
-
-      bool allQuestionsOnCurrentPageAnswered = true;
-      for (int i = startIndex; i < endIndex; i++) {
-        if (currentState.selectedAnswers[currentState.questions[i].id] ==
-            null) {
-          allQuestionsOnCurrentPageAnswered = false;
-          break;
-        }
-      }
-
-      emit(QuestionsLoaded(
-        currentState.questions,
-        currentState.selectedAnswers,
-        currentState.openSectionIndex,
-        currentState.currentIndex,
-        currentState.pageIndexes,
-        allQuestionsAnswered: allQuestionsOnCurrentPageAnswered,
       ));
     }
   }
