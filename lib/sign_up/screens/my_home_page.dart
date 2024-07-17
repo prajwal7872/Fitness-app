@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loginpage/auth/Screens/auth_screen.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/question_state.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
@@ -15,6 +16,79 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final PageController _pageController = PageController();
+
+  void _handleAnswerSelection(BuildContext context) {
+    final state = context.read<QuestionBloc>().state;
+
+    if (state is QuestionsLoaded) {
+      final updatedAnswers = Map<int, String?>.from(state.selectedAnswers);
+
+      // Calculate the start and end index of the current page
+      final currentPage = _pageController.page!.toInt();
+      final startIndex = currentPage * 3;
+      final endIndex = (currentPage * 3 + 3).clamp(0, state.questions.length);
+
+      // Check if all questions on the current page are answered
+      bool allQuestionsOnCurrentPageAnswered = true;
+      for (int i = startIndex; i < endIndex; i++) {
+        if (updatedAnswers[state.questions[i].id] == null) {
+          allQuestionsOnCurrentPageAnswered = false;
+          break;
+        }
+      }
+
+      // If all questions on the current page are answered
+      if (allQuestionsOnCurrentPageAnswered) {
+        if (currentPage >= (state.questions.length / 3).ceil() - 1) {
+          // Navigate to the SubmitScreen if it's the last page
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const AuthScreen(),
+          ));
+        } else {
+          // Move to the next page
+          context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
+          context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
+          context
+              .read<QuestionBloc>()
+              .add(UpdateCurrentPageIndex(currentPage + 1));
+
+          _pageController.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Please answer all questions.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  void _handlePreviousPage(BuildContext context) {
+    final state = context.read<QuestionBloc>().state;
+
+    if (state is QuestionsLoaded) {
+      final currentPage = _pageController.page!.toInt();
+
+      if (currentPage > 0) {
+        context.read<QuestionBloc>().add(ChangeOpenSection(currentPage - 1));
+        context.read<QuestionBloc>().add(SetPageIndex(currentPage - 1));
+        context
+            .read<QuestionBloc>()
+            .add(UpdateCurrentPageIndex(currentPage - 1));
+
+        _pageController.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,62 +119,140 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            SizedBox(
-              height: 50,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: 50,
+                  child: BlocBuilder<QuestionBloc, QuestionState>(
+                    builder: (context, state) {
+                      if (state is QuestionsLoaded) {
+                        final indexSet = state.pageIndexes;
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            (state.questions.length / 3).ceil(),
+                            (index) {
+                              bool activeIndex = indexSet.contains(index + 1);
+
+                              return SizedBox(
+                                child: TimelineTile(
+                                  axis: TimelineAxis.horizontal,
+                                  alignment: TimelineAlign.center,
+                                  isFirst: index == 0,
+                                  isLast: (state.questions.length / 3).ceil() ==
+                                      index + 1,
+                                  indicatorStyle: IndicatorStyle(
+                                    drawGap: true,
+                                    color: Colors.white,
+                                    iconStyle: IconStyle(
+                                      fontSize: 22,
+                                      iconData: activeIndex
+                                          ? Icons.check_circle
+                                          : Icons.circle,
+                                      color: activeIndex
+                                          ? Colors.green
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                  beforeLineStyle: LineStyle(
+                                    color: activeIndex
+                                        ? Colors.green
+                                        : Colors.black,
+                                    thickness: 3,
+                                  ),
+                                  afterLineStyle: LineStyle(
+                                    color: activeIndex
+                                        ? Colors.green
+                                        : Colors.black,
+                                    thickness: 3,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      } else {
+                        return const SizedBox();
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: BlocBuilder<QuestionBloc, QuestionState>(
+                    builder: (context, state) {
+                      if (state is QuestionsLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (state is QuestionsLoaded) {
+                        return PageView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          controller: _pageController,
+                          itemCount: (state.questions.length / 3).ceil(),
+                          onPageChanged: (index) {
+                            context
+                                .read<QuestionBloc>()
+                                .add(ChangeOpenSection(index = 0));
+                          },
+                          itemBuilder: (context, index) {
+                            final startIndex = index * 3;
+                            final endIndex = (index * 3 + 3)
+                                .clamp(0, state.questions.length);
+                            final pageQuestions =
+                                state.questions.sublist(startIndex, endIndex);
+
+                            return Column(
+                              children: [
+                                Expanded(
+                                  child: AccordionWidget(
+                                    pageIndex: index + 1,
+                                    questions: pageQuestions,
+                                    selectedAnswers: state.selectedAnswers,
+                                    pageController: _pageController,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        return const Center(
+                            child: Text('Failed to load questions'));
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
                   if (state is QuestionsLoaded) {
-                    final indexSet = state.pageIndexes;
-                    print('indexSet $indexSet');
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                          (state.questions.length / 3).ceil(), (index) {
-                        // print('inside timeline $index');
-
-                        bool activeIndex = indexSet.contains(index + 1);
-                        // print('accept $activeIndex');
-
-                        return SizedBox(
-                          // width: 44,
-                          child: TimelineTile(
-                            axis: TimelineAxis.horizontal,
-                            alignment: TimelineAlign.center,
-                            isFirst: index == 0 ? true : false,
-                            isLast:
-                                (state.questions.length / 3).ceil() == index + 1
-                                    ? true
-                                    : false,
-                            indicatorStyle: IndicatorStyle(
-                              // width: 23.w,
-                              // height: 23.h,
-                              drawGap: true,
-                              // padding: EdgeInsets.all(1),
-                              color: Colors.white,
-                              iconStyle: IconStyle(
-                                fontSize: 22,
-                                iconData: activeIndex
-                                    ? Icons.check_circle
-                                    : Icons.circle,
-                                color:
-                                    activeIndex ? Colors.green : Colors.black,
-                              ),
-                            ),
-                            beforeLineStyle: LineStyle(
-                              color: activeIndex ? Colors.green : Colors.black,
-                              thickness: 3,
-                            ),
-                            afterLineStyle: LineStyle(
-                              color: activeIndex ? Colors.green : Colors.black,
-                              thickness: 3,
-                            ),
-                          ),
-                        );
-                      }),
+                    final isLastPage = state.currentPageIndex >= 3
+                        ? const Text(
+                            'Submit',
+                            style: TextStyle(color: Colors.white),
+                          )
+                        : const Text(
+                            'Next',
+                            style: TextStyle(color: Colors.white),
+                          );
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SizedBox(
+                        width: 80,
+                        child: FloatingActionButton(
+                            heroTag: 'nextButton',
+                            backgroundColor: state.allQuestionsAnswered
+                                ? Colors.green
+                                : Colors.grey,
+                            onPressed: () {
+                              _handleAnswerSelection(context);
+                            },
+                            child: isLastPage),
+                      ),
                     );
                   } else {
                     return const SizedBox();
@@ -108,40 +260,33 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
-            Expanded(
+            Align(
+              alignment: Alignment.bottomLeft,
               child: BlocBuilder<QuestionBloc, QuestionState>(
                 builder: (context, state) {
-                  if (state is QuestionsLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is QuestionsLoaded) {
-                    return PageView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      controller: _pageController,
-                      itemCount: (state.questions.length / 3).ceil(),
-                      onPageChanged: (index) {
-                        print('insidee onpage change $index');
+                  if (state is QuestionsLoaded) {
+                    final previousButtonColor =
+                        state.currentPageIndex > 0 ? Colors.green : Colors.grey;
 
-                        context
-                            .read<QuestionBloc>()
-                            .add(ChangeOpenSection(index = 0));
-                      },
-                      itemBuilder: (context, index) {
-                        final startIndex = index * 3;
-                        final endIndex =
-                            (index * 3 + 3).clamp(0, state.questions.length);
-                        final pageQuestions =
-                            state.questions.sublist(startIndex, endIndex);
-
-                        return AccordionWidget(
-                          pageIndex: index + 1,
-                          questions: pageQuestions,
-                          selectedAnswers: state.selectedAnswers,
-                          pageController: _pageController,
-                        );
-                      },
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SizedBox(
+                        width: 80,
+                        child: FloatingActionButton(
+                          heroTag: 'previousButton',
+                          backgroundColor: previousButtonColor,
+                          onPressed: () {
+                            _handlePreviousPage(context);
+                          },
+                          child: const Text(
+                            'Previous',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
                     );
                   } else {
-                    return const Center(child: Text('Something went wrong!'));
+                    return const SizedBox();
                   }
                 },
               ),

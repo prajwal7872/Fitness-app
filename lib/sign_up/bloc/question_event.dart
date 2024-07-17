@@ -36,3 +36,12 @@ class SetPageIndex extends QuestionEvent {
   @override
   List<Object> get props => [pageIndex];
 }
+
+class UpdateCurrentPageIndex extends QuestionEvent {
+  final int currentPageIndex;
+
+  const UpdateCurrentPageIndex(this.currentPageIndex);
+
+  @override
+  List<Object> get props => [currentPageIndex];
+}

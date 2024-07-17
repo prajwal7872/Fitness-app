@@ -1,4 +1,3 @@
-// lib/ui/widgets/custom_accordion_section.dart
 import 'package:flutter/material.dart';
 import 'package:accordion/accordion.dart';
 
