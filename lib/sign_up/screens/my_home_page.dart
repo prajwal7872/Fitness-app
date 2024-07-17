@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loginpage/auth/Screens/auth_screen.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/question_state.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
@@ -36,20 +37,34 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
 
-      // If all questions on the current page are answered, dispatch events
+      // If all questions on the current page are answered
       if (allQuestionsOnCurrentPageAnswered) {
-        context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
-        context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
-        context
-            .read<QuestionBloc>()
-            .add(UpdateCurrentPageIndex(currentPage + 1));
+        if (currentPage >= (state.questions.length / 3).ceil() - 1) {
+          // Navigate to the SubmitScreen if it's the last page
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const AuthScreen(),
+          ));
+        } else {
+          // Move to the next page
+          context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
+          context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
+          context
+              .read<QuestionBloc>()
+              .add(UpdateCurrentPageIndex(currentPage + 1));
 
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+          _pageController.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
       } else {
-        _showValidationDialog(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Please answer all questions.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     }
   }
@@ -73,32 +88,6 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       }
     }
-  }
-
-  void _showValidationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            'Something Went Wrong',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            'Please answer all questions before proceeding.',
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -255,6 +244,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: SizedBox(
                         width: 80,
                         child: FloatingActionButton(
+                            heroTag: 'nextButton',
                             backgroundColor: state.allQuestionsAnswered
                                 ? Colors.green
                                 : Colors.grey,
@@ -283,6 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: SizedBox(
                         width: 80,
                         child: FloatingActionButton(
+                          heroTag: 'previousButton',
                           backgroundColor: previousButtonColor,
                           onPressed: () {
                             _handlePreviousPage(context);

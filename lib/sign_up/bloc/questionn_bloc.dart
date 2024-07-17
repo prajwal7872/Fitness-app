@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/question_state.dart';
@@ -138,10 +136,7 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   }
 
   bool _areAllQuestionsAnswered(
-    Map<int, String?> answers,
-    List<Question> questions,
-    int pageIndex,
-  ) {
+      Map<int, String?> answers, List<Question> questions, int pageIndex) {
     final startIndex = pageIndex * 3;
     final endIndex = (pageIndex * 3 + 3).clamp(0, questions.length);
 
