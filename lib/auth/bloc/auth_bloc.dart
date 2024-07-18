@@ -1,4 +1,5 @@
-// BLoC
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/auth/bloc/auth_event.dart';
@@ -22,6 +23,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       if (userCredentials.user!.emailVerified) {
+        String? idToken = await userCredentials.user!.getIdToken();
+        print('ID Token: $idToken');
         emit(AuthAuthenticated());
       } else {
         emit(const AuthError('Please verify your email to log in.'));

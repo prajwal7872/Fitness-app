@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
-class CalorieChart extends StatelessWidget {
+class CalorieChart extends StatefulWidget {
   final Map<String, double> weeklyCalorieData;
   const CalorieChart(this.weeklyCalorieData, {super.key});
 
+  @override
+  State<CalorieChart> createState() => _CalorieChartState();
+}
+
+class _CalorieChartState extends State<CalorieChart> {
   @override
   Widget build(BuildContext context) {
     final List<FlSpot> lineChartData = [];
@@ -13,7 +18,7 @@ class CalorieChart extends StatelessWidget {
 
     for (int i = 0; i < weekDays.length; i++) {
       String day = weekDays[i];
-      double calorie = weeklyCalorieData[day] ?? 0.0;
+      double calorie = widget.weeklyCalorieData[day] ?? 0.0;
       lineChartData.add(FlSpot(i.toDouble(), calorie));
     }
 
