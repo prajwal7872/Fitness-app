@@ -11,24 +11,12 @@ final class MealInitial extends MealState {}
 
 class MealPlanLoaded extends MealState {
   final List<Map<String, dynamic>> statusData;
+  final List<bool> acceptedMeals;
+  final int currentMealIndex;
 
   const MealPlanLoaded(
-    this.statusData,
-  );
+      this.statusData, this.acceptedMeals, this.currentMealIndex);
 
   @override
-  List<Object> get props => [statusData];
-}
-
-class MealSelected extends MealState {
-  final List<Map<String, dynamic>> statusData;
-  final Map<String, dynamic> selectedMeal;
-
-  const MealSelected(
-    this.selectedMeal,
-    this.statusData,
-  );
-
-  @override
-  List<Object> get props => [selectedMeal, statusData];
+  List<Object> get props => [statusData, acceptedMeals, currentMealIndex];
 }

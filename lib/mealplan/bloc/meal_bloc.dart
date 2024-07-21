@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -63,14 +61,20 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           "recipeLink": "https://flutter.dev"
         }
       ];
-      emit(MealPlanLoaded(statusData));
+      emit(MealPlanLoaded(
+          statusData, List<bool>.filled(statusData.length, false), 0));
     });
 
-    on<SelectMealEvent>((event, emit) {
-      emit(MealSelected(
-        event.selectedMeal,
-        event.statusData,
-      ));
+    on<AcceptMealEvent>((event, emit) {
+      final state = this.state as MealPlanLoaded;
+      final acceptedMeals = List<bool>.from(state.acceptedMeals);
+      if (state.currentMealIndex < acceptedMeals.length) {
+        acceptedMeals[state.currentMealIndex] = true;
+      }
+      final nextMealIndex = state.currentMealIndex < state.statusData.length - 1
+          ? state.currentMealIndex + 1
+          : state.currentMealIndex;
+      emit(MealPlanLoaded(state.statusData, acceptedMeals, nextMealIndex));
     });
   }
 }

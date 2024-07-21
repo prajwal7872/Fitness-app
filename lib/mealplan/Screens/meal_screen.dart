@@ -38,13 +38,11 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
           builder: (context, state) {
             if (state is MealInitial) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state is MealPlanLoaded || state is MealSelected) {
-              final statusData = state is MealPlanLoaded
-                  ? state.statusData
-                  : (state as MealSelected).statusData;
-              final selectedMeal = state is MealPlanLoaded
-                  ? state.statusData[0]
-                  : (state as MealSelected).selectedMeal;
+            } else if (state is MealPlanLoaded) {
+              final statusData = state.statusData;
+              final currentMealIndex = state.currentMealIndex;
+              final selectedMeal = statusData[currentMealIndex];
+              final acceptedMeals = state.acceptedMeals;
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,11 +70,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: statusData.map((meal) {
                       return GestureDetector(
-                        onTap: () {
-                          context
-                              .read<MealBloc>()
-                              .add(SelectMealEvent(meal, statusData));
-                        },
+                        onTap: () {},
                         child: MealItem(
                           imagePath: meal['image'],
                           mealName: meal['statusLabel'],
@@ -84,7 +78,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       );
                     }).toList(),
                   ),
-                  const HorizontalTimeline(),
+                  HorizontalTimeline(acceptedMeals: acceptedMeals),
                   Card(
                     elevation: 4.0,
                     shape: RoundedRectangleBorder(
@@ -112,7 +106,11 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                 width: 80,
                                 child: FloatingActionButton(
                                   backgroundColor: Colors.blue,
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    context
+                                        .read<MealBloc>()
+                                        .add(AcceptMealEvent());
+                                  },
                                   child: const Text(
                                     'Accept',
                                     style: TextStyle(color: Colors.white),
@@ -155,6 +153,49 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
   }
 }
 
+class HorizontalTimeline extends StatelessWidget {
+  final List<bool> acceptedMeals;
+
+  const HorizontalTimeline({super.key, required this.acceptedMeals});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 70,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(acceptedMeals.length, (index) {
+          bool isFirst = index == 0;
+          bool isLast = index == acceptedMeals.length - 1;
+          bool isActive = acceptedMeals[index];
+
+          return SizedBox(
+            width: 103,
+            child: TimelineTile(
+              axis: TimelineAxis.horizontal,
+              alignment: TimelineAlign.center,
+              isFirst: isFirst,
+              isLast: isLast,
+              indicatorStyle: IndicatorStyle(
+                drawGap: true,
+                color: Colors.white,
+                iconStyle: IconStyle(
+                    fontSize: 22,
+                    iconData: isActive ? Icons.check_circle : Icons.circle,
+                    color: isActive ? Colors.green : Colors.black),
+              ),
+              beforeLineStyle: LineStyle(
+                  color: isActive ? Colors.green : Colors.black, thickness: 3),
+              afterLineStyle: LineStyle(
+                  color: isActive ? Colors.green : Colors.black, thickness: 3),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
 class MealItem extends StatelessWidget {
   final String imagePath;
   final String mealName;
@@ -190,7 +231,6 @@ class LunchCountdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             'Lunch time starts in 30 mins',
@@ -353,52 +393,6 @@ class NutritionalTable extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class HorizontalTimeline extends StatelessWidget {
-  const HorizontalTimeline({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 70,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(4, (index) {
-          bool isFirst = index == 0;
-          bool isLast = index == 3;
-          bool isActive = index <= 2;
-
-          return SizedBox(
-            width: 103,
-            child: TimelineTile(
-              axis: TimelineAxis.horizontal,
-              alignment: TimelineAlign.center,
-              isFirst: isFirst,
-              isLast: isLast,
-              indicatorStyle: IndicatorStyle(
-                drawGap: true,
-                color: Colors.white,
-                iconStyle: IconStyle(
-                  fontSize: 22,
-                  iconData: isActive ? Icons.check_circle : Icons.circle,
-                  color: isActive ? Colors.green : Colors.black,
-                ),
-              ),
-              beforeLineStyle: LineStyle(
-                color: isActive ? Colors.green : Colors.black,
-                thickness: 3,
-              ),
-              afterLineStyle: LineStyle(
-                color: isActive ? Colors.green : Colors.black,
-                thickness: 3,
-              ),
-            ),
-          );
-        }),
-      ),
     );
   }
 }
