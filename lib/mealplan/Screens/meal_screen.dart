@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/mealplan/bloc/meal_bloc.dart';
+import 'package:timeline_tile/timeline_tile.dart';
 
 class MealPlanScreen extends StatefulWidget {
   const MealPlanScreen({super.key});
@@ -24,7 +25,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
         actions: [
           IconButton(
             icon: const Icon(
-              Icons.notifications,
+              Icons.notifications_active,
               size: 40,
             ),
             onPressed: () {},
@@ -48,9 +49,19 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Meal plan for Moses!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Meal plan for Moses!',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '(2500 Calorie today)',
+                        style: TextStyle(fontSize: 13),
+                      )
+                    ],
                   ),
                   const Text(
                     'Sorted according to your exercises',
@@ -73,7 +84,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 80),
+                  const HorizontalTimeline(),
                   Card(
                     elevation: 4.0,
                     shape: RoundedRectangleBorder(
@@ -131,6 +142,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                   const LunchCountdown(),
                   const SizedBox(height: 20),
                   const CheckRecipe(),
+                  const BottleList()
                 ],
               );
             } else {
@@ -178,6 +190,7 @@ class LunchCountdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             'Lunch time starts in 30 mins',
@@ -203,20 +216,63 @@ class CheckRecipe extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: Colors.transparent),
         borderRadius: BorderRadius.circular(50.0),
       ),
       child: Row(
         children: [
-          ClipOval(
-            child: Image.asset(
-              'assets/images/receipe.jpg',
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover,
-            ),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              ClipOval(
+                child: Image.asset(
+                  'assets/images/receipe.jpg',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Positioned(
+                left: 200,
+                bottom: 130,
+                child: SizedBox(
+                  height: 105,
+                  width: 50,
+                  child: Image.asset(
+                    'assets/images/bottle1.jpg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 240,
+                bottom: 130,
+                child: SizedBox(
+                  height: 105,
+                  width: 50,
+                  child: Image.asset(
+                    'assets/images/bottle1.jpg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 280,
+                bottom: 130,
+                child: SizedBox(
+                  height: 105,
+                  width: 50,
+                  child: Image.asset(
+                    'assets/images/bottle1.jpg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
+          const SizedBox(
+            width: 10,
+          ),
           const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -225,7 +281,7 @@ class CheckRecipe extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
-                '15min\'s preparing time',
+                '15 min\'s preparing time',
                 style: TextStyle(fontSize: 16),
               ),
             ],
@@ -297,6 +353,109 @@ class NutritionalTable extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class HorizontalTimeline extends StatelessWidget {
+  const HorizontalTimeline({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 70,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(4, (index) {
+          bool isFirst = index == 0;
+          bool isLast = index == 3;
+          bool isActive = index <= 2;
+
+          return SizedBox(
+            width: 103,
+            child: TimelineTile(
+              axis: TimelineAxis.horizontal,
+              alignment: TimelineAlign.center,
+              isFirst: isFirst,
+              isLast: isLast,
+              indicatorStyle: IndicatorStyle(
+                drawGap: true,
+                color: Colors.white,
+                iconStyle: IconStyle(
+                  fontSize: 22,
+                  iconData: isActive ? Icons.check_circle : Icons.circle,
+                  color: isActive ? Colors.green : Colors.black,
+                ),
+              ),
+              beforeLineStyle: LineStyle(
+                color: isActive ? Colors.green : Colors.black,
+                thickness: 3,
+              ),
+              afterLineStyle: LineStyle(
+                color: isActive ? Colors.green : Colors.black,
+                thickness: 3,
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class BottleList extends StatefulWidget {
+  const BottleList({super.key});
+
+  @override
+  State<BottleList> createState() => _BottleListState();
+}
+
+class _BottleListState extends State<BottleList> {
+  List<bool> selectedBottles = List<bool>.filled(12, false);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 12,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedBottles[index] = !selectedBottles[index];
+              });
+            },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/bottle1.jpg',
+                  height: 150,
+                  width: 50,
+                  fit: BoxFit.contain,
+                ),
+                if (selectedBottles[index])
+                  Positioned(
+                    top: 52,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -36,7 +36,7 @@ class _CalorieChartState extends State<CalorieChart> {
         body: IndexedStack(
           index: _selectedIndex,
           children: [
-            MealPlanScreen(),
+            const MealPlanScreen(),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(

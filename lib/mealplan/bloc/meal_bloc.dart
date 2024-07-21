@@ -67,7 +67,10 @@ class MealBloc extends Bloc<MealEvent, MealState> {
     });
 
     on<SelectMealEvent>((event, emit) {
-      emit(MealSelected(event.selectedMeal, event.statusData));
+      emit(MealSelected(
+        event.selectedMeal,
+        event.statusData,
+      ));
     });
   }
 }

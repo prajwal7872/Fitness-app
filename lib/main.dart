@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => MealBloc()..add(LoadStatusDataEvent()),
-          child: MealPlanScreen(),
+          child: const MealPlanScreen(),
         )
       ],
       child: MaterialApp(
