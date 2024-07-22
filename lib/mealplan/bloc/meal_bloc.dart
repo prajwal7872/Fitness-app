@@ -76,5 +76,11 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           : state.currentMealIndex;
       emit(MealPlanLoaded(state.statusData, acceptedMeals, nextMealIndex));
     });
+
+    on<ShowMealDescriptionEvent>((event, emit) {
+      final state = this.state as MealPlanLoaded;
+      emit(MealPlanLoaded(
+          state.statusData, state.acceptedMeals, event.mealIndex));
+    });
   }
 }

@@ -18,5 +18,9 @@ class MealPlanLoaded extends MealState {
       this.statusData, this.acceptedMeals, this.currentMealIndex);
 
   @override
-  List<Object> get props => [statusData, acceptedMeals, currentMealIndex];
+  List<Object> get props => [
+        statusData,
+        acceptedMeals,
+        currentMealIndex,
+      ];
 }

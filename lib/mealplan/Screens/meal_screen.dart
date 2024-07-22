@@ -68,13 +68,13 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                   const SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: statusData.map((meal) {
-                      return GestureDetector(
-                        onTap: () {},
-                        child: MealItem(
-                          imagePath: meal['image'],
-                          mealName: meal['statusLabel'],
-                        ),
+                    children: statusData.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> meal = entry.value;
+                      return MealItem(
+                        imagePath: meal['image'],
+                        mealName: meal['statusLabel'],
+                        mealIndex: index,
                       );
                     }).toList(),
                   ),
@@ -199,25 +199,101 @@ class HorizontalTimeline extends StatelessWidget {
 class MealItem extends StatelessWidget {
   final String imagePath;
   final String mealName;
+  final int mealIndex;
 
-  const MealItem({super.key, required this.imagePath, required this.mealName});
+  const MealItem({
+    super.key,
+    required this.imagePath,
+    required this.mealName,
+    required this.mealIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          mealName,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
-        ),
-        const SizedBox(height: 10),
-        ClipOval(
-          child: Image.asset(
-            imagePath,
-            width: 90,
-            height: 90,
-            fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        context.read<MealBloc>().add(ShowMealDescriptionEvent(mealIndex));
+      },
+      child: Column(
+        children: [
+          Text(
+            mealName,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
           ),
+          const SizedBox(height: 10),
+          ClipOval(
+            child: Image.asset(
+              imagePath,
+              width: 90,
+              height: 90,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NutritionalTable extends StatelessWidget {
+  final Map<String, String> nutritionalPlan;
+
+  const NutritionalTable({super.key, required this.nutritionalPlan});
+
+  @override
+  Widget build(BuildContext context) {
+    final keys = nutritionalPlan.keys.toList();
+    final values = nutritionalPlan.values.toList();
+
+    assert(keys.length >= 4 && values.length >= 4);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Table(
+          border: TableBorder.all(),
+          children: [
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(keys[0], textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(values[0], textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(keys[1], textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(values[1], textAlign: TextAlign.center),
+                ),
+              ],
+            ),
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(keys[2], textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(values[2], textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(keys[3], textAlign: TextAlign.center),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(values[3], textAlign: TextAlign.center),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
@@ -256,6 +332,7 @@ class CheckRecipe extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 234, 205, 239),
         border: Border.all(color: Colors.transparent),
         borderRadius: BorderRadius.circular(50.0),
       ),
@@ -328,71 +405,6 @@ class CheckRecipe extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class NutritionalTable extends StatelessWidget {
-  final Map<String, String> nutritionalPlan;
-
-  const NutritionalTable({super.key, required this.nutritionalPlan});
-
-  @override
-  Widget build(BuildContext context) {
-    final keys = nutritionalPlan.keys.toList();
-    final values = nutritionalPlan.values.toList();
-
-    assert(keys.length >= 4 && values.length >= 4);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Table(
-          border: TableBorder.all(),
-          children: [
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[0], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[0], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[1], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[1], textAlign: TextAlign.center),
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[2], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[2], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[3], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[3], textAlign: TextAlign.center),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
     );
   }
 }
