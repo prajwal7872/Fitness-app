@@ -11,6 +11,7 @@ import 'package:loginpage/calorie/bloc/calorie_state.dart';
 import 'package:loginpage/calorie/screens/caloriechart_screen.dart';
 import 'package:loginpage/mealplan/Screens/meal_screen.dart';
 import 'package:loginpage/mealplan/bloc/meal_bloc.dart';
+import 'package:loginpage/mealplan/bloc/meal_event.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';

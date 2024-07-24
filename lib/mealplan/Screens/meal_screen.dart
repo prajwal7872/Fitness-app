@@ -1,6 +1,10 @@
+// ignore_for_file: avoid_print, unnecessary_brace_in_string_interps
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/mealplan/bloc/meal_bloc.dart';
+import 'package:loginpage/mealplan/bloc/meal_event.dart';
+import 'package:loginpage/mealplan/bloc/meal_state.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
 class MealPlanScreen extends StatefulWidget {
@@ -40,9 +44,13 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
               return const Center(child: CircularProgressIndicator());
             } else if (state is MealPlanLoaded) {
               final statusData = state.statusData;
-              final currentMealIndex = state.currentMealIndex;
-              final selectedMeal = statusData[currentMealIndex];
+              final selectedMealIndex = state.selectedMealIndex;
+              final selectedMeal = statusData[selectedMealIndex];
               final acceptedMeals = state.acceptedMeals;
+              final rejectedMeals = state.rejectedMeals;
+              final showAcceptButton = state.showAcceptButton;
+
+              print('selectedMealIndex $selectedMealIndex');
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +86,10 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       );
                     }).toList(),
                   ),
-                  HorizontalTimeline(acceptedMeals: acceptedMeals),
+                  HorizontalTimeline(
+                    acceptedMeals: acceptedMeals,
+                    rejectedMeals: rejectedMeals,
+                  ),
                   Card(
                     elevation: 4.0,
                     shape: RoundedRectangleBorder(
@@ -99,47 +110,76 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                             nutritionalPlan: selectedMeal['nutritionalPlan'],
                           ),
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 80,
-                                child: FloatingActionButton(
-                                  backgroundColor: Colors.blue,
-                                  onPressed: () {
-                                    context
-                                        .read<MealBloc>()
-                                        .add(AcceptMealEvent());
-                                  },
-                                  child: const Text(
-                                    'Accept',
-                                    style: TextStyle(color: Colors.white),
+                          if (showAcceptButton)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 80,
+                                  child: FloatingActionButton(
+                                    backgroundColor: Colors.blue,
+                                    onPressed: () {
+                                      if (state.currentMealIndex == 3) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            backgroundColor: Colors.blue,
+                                            content: Text(
+                                                'Congrats, data updated for today.'),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      }
+                                      context
+                                          .read<MealBloc>()
+                                          .add(AcceptMealEvent());
+                                    },
+                                    child: const Text(
+                                      'Accept',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              SizedBox(
-                                width: 80,
-                                child: FloatingActionButton(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 255, 72, 59),
-                                  onPressed: () {},
-                                  child: const Text(
-                                    'Reject',
-                                    style: TextStyle(color: Colors.white),
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: 80,
+                                  child: FloatingActionButton(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 255, 72, 59),
+                                    onPressed: () {
+                                      if (state.currentMealIndex == 3) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            backgroundColor: Colors.blue,
+                                            content: Text(
+                                                'Congrats, data updated for today.'),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      }
+                                      context
+                                          .read<MealBloc>()
+                                          .add(RejectMealEvent());
+                                    },
+                                    child: const Text(
+                                      'Reject',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const LunchCountdown(),
+                  LunchCountdownWithRecipe(
+                    imagePath: selectedMeal['image'],
+                    mealName: selectedMeal['statusLabel'],
+                  ),
                   const SizedBox(height: 20),
-                  const CheckRecipe(),
                   const BottleList()
                 ],
               );
@@ -155,8 +195,10 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
 
 class HorizontalTimeline extends StatelessWidget {
   final List<bool> acceptedMeals;
+  final List<bool> rejectedMeals;
 
-  const HorizontalTimeline({super.key, required this.acceptedMeals});
+  const HorizontalTimeline(
+      {super.key, required this.acceptedMeals, required this.rejectedMeals});
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +209,20 @@ class HorizontalTimeline extends StatelessWidget {
         children: List.generate(acceptedMeals.length, (index) {
           bool isFirst = index == 0;
           bool isLast = index == acceptedMeals.length - 1;
-          bool isActive = acceptedMeals[index];
+          bool isAccepted = acceptedMeals[index];
+          bool isRejected = rejectedMeals[index];
+          IconData iconData;
+          Color iconColor;
+          if (isAccepted) {
+            iconData = Icons.check_circle;
+            iconColor = Colors.green;
+          } else if (isRejected) {
+            iconData = Icons.cancel;
+            iconColor = Colors.red;
+          } else {
+            iconData = Icons.circle;
+            iconColor = Colors.black;
+          }
 
           return SizedBox(
             width: 103,
@@ -180,14 +235,17 @@ class HorizontalTimeline extends StatelessWidget {
                 drawGap: true,
                 color: Colors.white,
                 iconStyle: IconStyle(
-                    fontSize: 22,
-                    iconData: isActive ? Icons.check_circle : Icons.circle,
-                    color: isActive ? Colors.green : Colors.black),
+                  fontSize: 22,
+                  iconData: iconData,
+                  color: iconColor,
+                ),
               ),
               beforeLineStyle: LineStyle(
-                  color: isActive ? Colors.green : Colors.black, thickness: 3),
+                  color: isAccepted || isRejected ? iconColor : Colors.black,
+                  thickness: 3),
               afterLineStyle: LineStyle(
-                  color: isActive ? Colors.green : Colors.black, thickness: 3),
+                  color: isAccepted || isRejected ? iconColor : Colors.black,
+                  thickness: 3),
             ),
           );
         }),
@@ -300,108 +358,81 @@ class NutritionalTable extends StatelessWidget {
   }
 }
 
-class LunchCountdown extends StatelessWidget {
-  const LunchCountdown({super.key});
+class LunchCountdownWithRecipe extends StatelessWidget {
+  final String imagePath;
+  final String mealName;
+  const LunchCountdownWithRecipe(
+      {super.key, required this.imagePath, required this.mealName});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         children: [
           Text(
-            'Lunch time starts in 30 mins',
-            style: TextStyle(
-                fontSize: 25, fontWeight: FontWeight.bold, color: Colors.red),
+            '$mealName time starts in 30 mins',
+            style: const TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
           ),
-          Text(
+          const Text(
             'Get preparing!',
             style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
+                fontSize: 26, fontWeight: FontWeight.bold, color: Colors.red),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class CheckRecipe extends StatelessWidget {
-  const CheckRecipe({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 234, 205, 239),
-        border: Border.all(color: Colors.transparent),
-        borderRadius: BorderRadius.circular(50.0),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              ClipOval(
-                child: Image.asset(
-                  'assets/images/receipe.jpg',
-                  width: 200,
-                  height: 200,
-                  fit: BoxFit.cover,
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 234, 205, 239),
+              border: Border.all(color: Colors.transparent),
+              borderRadius: BorderRadius.circular(50.0),
+            ),
+            child: Row(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        imagePath,
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    ...List.generate(3, (index) {
+                      return Positioned(
+                        left: 200 + index * 40,
+                        bottom: 130,
+                        child: SizedBox(
+                          height: 105,
+                          width: 50,
+                          child: Image.asset(
+                            'assets/images/bottle1.jpg',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
-              ),
-              Positioned(
-                left: 200,
-                bottom: 130,
-                child: SizedBox(
-                  height: 105,
-                  width: 50,
-                  child: Image.asset(
-                    'assets/images/bottle1.jpg',
-                    fit: BoxFit.contain,
-                  ),
+                const SizedBox(width: 10),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Check out the recipe',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '15 min\'s preparing time',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
                 ),
-              ),
-              Positioned(
-                left: 240,
-                bottom: 130,
-                child: SizedBox(
-                  height: 105,
-                  width: 50,
-                  child: Image.asset(
-                    'assets/images/bottle1.jpg',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 280,
-                bottom: 130,
-                child: SizedBox(
-                  height: 105,
-                  width: 50,
-                  child: Image.asset(
-                    'assets/images/bottle1.jpg',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Check out the recipe',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                '15 min\'s preparing time',
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

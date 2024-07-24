@@ -1,4 +1,4 @@
-part of 'meal_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 sealed class MealState extends Equatable {
   const MealState();
@@ -7,20 +7,32 @@ sealed class MealState extends Equatable {
   List<Object> get props => [];
 }
 
-final class MealInitial extends MealState {}
+class MealInitial extends MealState {}
 
 class MealPlanLoaded extends MealState {
   final List<Map<String, dynamic>> statusData;
   final List<bool> acceptedMeals;
+  final List<bool> rejectedMeals;
   final int currentMealIndex;
+  final bool showAcceptButton;
+  final int selectedMealIndex;
 
   const MealPlanLoaded(
-      this.statusData, this.acceptedMeals, this.currentMealIndex);
+    this.statusData,
+    this.acceptedMeals,
+    this.rejectedMeals,
+    this.currentMealIndex,
+    this.showAcceptButton,
+    this.selectedMealIndex,
+  );
 
   @override
   List<Object> get props => [
         statusData,
         acceptedMeals,
+        rejectedMeals,
         currentMealIndex,
+        showAcceptButton,
+        selectedMealIndex,
       ];
 }

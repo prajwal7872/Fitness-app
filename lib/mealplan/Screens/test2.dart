@@ -1,38 +1,15 @@
-// part of 'meal_bloc.dart';
-
-// sealed class MealEvent extends Equatable {
-//   const MealEvent();
-
-//   @override
-//   List<Object> get props => [];
-// }
-
-// class LoadStatusDataEvent extends MealEvent {}
-
-// class AcceptMealEvent extends MealEvent {}
-
-// class ShowMealDescriptionEvent extends MealEvent {
-//   final int mealIndex;
-
-//   const ShowMealDescriptionEvent(this.mealIndex);
-
-//   @override
-//   List<Object> get props => [mealIndex];
-// }
 // // ignore_for_file: avoid_print
 
 // import 'package:bloc/bloc.dart';
-// import 'package:equatable/equatable.dart';
-
-// part 'meal_event.dart';
-// part 'meal_state.dart';
+// import 'package:loginpage/mealplan/bloc/meal_event.dart';
+// import 'package:loginpage/mealplan/bloc/meal_state.dart';
 
 // class MealBloc extends Bloc<MealEvent, MealState> {
 //   MealBloc() : super(MealInitial()) {
 //     on<LoadStatusDataEvent>((event, emit) {
 //       final List<Map<String, dynamic>> statusData = [
 //         {
-//           "image": "assets/images/breakfast.jpeg",
+//           "image": 'assets/images/receipe.jpg',
 //           "statusLabel": "Breakfast",
 //           "mealDescription": "Breakfast Meal description",
 //           "nutritionalPlan": {
@@ -85,7 +62,7 @@
 //         }
 //       ];
 //       emit(MealPlanLoaded(
-//           statusData, List<bool>.filled(statusData.length, false), 0, true, ));
+//           statusData, List<bool>.filled(statusData.length, false), 0, true, 0));
 //     });
 
 //     on<AcceptMealEvent>((event, emit) {
@@ -98,10 +75,10 @@
 //           ? state.currentMealIndex + 1
 //           : state.currentMealIndex;
 //       emit(MealPlanLoaded(
-//           state.statusData, acceptedMeals, nextMealIndex, true, ));
+//           state.statusData, acceptedMeals, nextMealIndex, true, nextMealIndex));
 //     });
 
-//     on<ShowMealDescriptionEvent>((event, emit) {
+//     on<ShowMealDescriptionEvent>((event, emit) async {
 //       final state = this.state as MealPlanLoaded;
 //       print(' mealIndex = ${event.mealIndex}');
 //       print('currentMealIndex = ${state.currentMealIndex}');
@@ -110,15 +87,22 @@
 //       print(showAcceptButton);
 
 //       emit(MealPlanLoaded(state.statusData, state.acceptedMeals,
-//           state.currentMealIndex, showAcceptButton, ));
+//           state.currentMealIndex, showAcceptButton, event.mealIndex));
+
+//       if (state.currentMealIndex != event.mealIndex) {
+//         await Future.delayed(const Duration(seconds: 3));
+//         emit(MealPlanLoaded(state.statusData, state.acceptedMeals,
+//             state.currentMealIndex, true, state.currentMealIndex));
+//       }
 //     });
 //   }
 // }
-// // ignore_for_file: avoid_print
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:loginpage/mealplan/bloc/meal_bloc.dart';
+// import 'package:loginpage/mealplan/bloc/meal_event.dart';
+// import 'package:loginpage/mealplan/bloc/meal_state.dart';
 // import 'package:timeline_tile/timeline_tile.dart';
 
 // class MealPlanScreen extends StatefulWidget {
@@ -158,12 +142,12 @@
 //               return const Center(child: CircularProgressIndicator());
 //             } else if (state is MealPlanLoaded) {
 //               final statusData = state.statusData;
-//               final currentMealIndex = state.currentMealIndex;
-//               final selectedMeal = statusData[currentMealIndex];
+//               final selectedMealIndex = state.selectedMealIndex;
+//               final selectedMeal = statusData[selectedMealIndex];
 //               final acceptedMeals = state.acceptedMeals;
 //               final showAcceptButton = state.showAcceptButton;
 
-//               print('currentMealIndex $currentMealIndex');
+//               print('selectedMealIndex $selectedMealIndex');
 
 //               return Column(
 //                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,11 +216,6 @@
 //                                       context
 //                                           .read<MealBloc>()
 //                                           .add(AcceptMealEvent());
-
-//                                       // print(
-//                                       //     '${currentMealIndex}currentMealIndex');
-//                                       // print('{$selectedMeal}selectedMeal');
-//                                       // print(acceptedMeals);
 //                                     },
 //                                     child: const Text(
 //                                       'Accept',
@@ -425,3 +404,4 @@
 //       ],
 //     );
 //   }
+// }

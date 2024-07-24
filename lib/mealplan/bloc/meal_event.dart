@@ -1,4 +1,4 @@
-part of 'meal_bloc.dart';
+import 'package:equatable/equatable.dart';
 
 sealed class MealEvent extends Equatable {
   const MealEvent();
@@ -10,6 +10,8 @@ sealed class MealEvent extends Equatable {
 class LoadStatusDataEvent extends MealEvent {}
 
 class AcceptMealEvent extends MealEvent {}
+
+class RejectMealEvent extends MealEvent {}
 
 class ShowMealDescriptionEvent extends MealEvent {
   final int mealIndex;
