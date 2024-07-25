@@ -139,35 +139,39 @@ class MealBloc extends Bloc<MealEvent, MealState> {
 
     on<ShowMealDescriptionEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
-      print(' mealIndex = ${event.mealIndex}');
-      print('currentMealIndex = ${state.currentMealIndex}');
+      print('mealIndex = ${event.mealIndex}');
+      print('currentMealIndex= ${state.currentMealIndex}');
 
       final showAcceptButton = event.mealIndex == state.currentMealIndex;
       print(showAcceptButton);
-
       emit(MealPlanLoaded(
-          state.statusData,
-          state.acceptedMeals,
-          state.rejectedMeals,
-          state.currentMealIndex,
-          showAcceptButton,
-          event.mealIndex,
-          -1,
-          0));
+        state.statusData,
+        state.acceptedMeals,
+        state.rejectedMeals,
+        state.currentMealIndex,
+        showAcceptButton,
+        event.mealIndex,
+        -1,
+        0,
+      ));
 
-      if (state.currentMealIndex != event.mealIndex) {
+      if (event.mealIndex != state.currentMealIndex) {
         await Future.delayed(const Duration(seconds: 5));
-        emit(MealPlanLoaded(
-            state.statusData,
-            state.acceptedMeals,
-            state.rejectedMeals,
-            state.currentMealIndex,
-            true,
-            state.currentMealIndex,
-            -1,
-            0));
+        final currentState = this.state as MealPlanLoaded;
+        if (currentState.selectedMealIndex == event.mealIndex) {
+          emit(MealPlanLoaded(
+              currentState.statusData,
+              currentState.acceptedMeals,
+              currentState.rejectedMeals,
+              currentState.currentMealIndex,
+              true,
+              currentState.currentMealIndex,
+              -1,
+              0));
+        }
       }
     });
+
     on<SelectBottleEvent>((event, emit) {
       final state = this.state as MealPlanLoaded;
       final newWaterIntake = (event.bottleIndex + 1) * 1000;
