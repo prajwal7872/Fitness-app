@@ -474,7 +474,7 @@ class _BottleListState extends State<BottleList> {
                             width: 50,
                             fit: BoxFit.contain,
                           ),
-                          if (state.selectedBottleIndex == index)
+                          if (state.selectedBottleIndex >= index)
                             Positioned(
                               top: 52,
                               child: Container(
