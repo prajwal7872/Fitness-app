@@ -7,9 +7,13 @@ import 'package:loginpage/auth/Screens/auth_screen.dart';
 import 'package:loginpage/auth/bloc/auth_bloc.dart';
 import 'package:loginpage/calorie/bloc/calorie_bloc.dart';
 import 'package:loginpage/calorie/bloc/calorie_event.dart';
+import 'package:loginpage/calorie/bloc/calorie_state.dart';
+import 'package:loginpage/calorie/screens/caloriechart_screen.dart';
+import 'package:loginpage/mealplan/Screens/meal_screen.dart';
+import 'package:loginpage/mealplan/bloc/meal_bloc.dart';
+import 'package:loginpage/mealplan/bloc/meal_event.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
-import 'package:loginpage/sign_up/screens/my_home_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:loginpage/calorie/services/health_service.dart';
 
@@ -40,6 +44,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => AuthBloc(FirebaseAuth.instance),
         ),
+        BlocProvider(
+          create: (context) => MealBloc()..add(LoadStatusDataEvent()),
+          child: const MealPlanScreen(),
+        )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -63,9 +71,31 @@ class AuthWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.active) {
           User? user = snapshot.data;
           if (user == null) {
-            return const AuthScreen();
+            return BlocBuilder<CalorieBloc, CalorieState>(
+                builder: (context, state) {
+              if (state is CalorieLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is CalorieLoaded) {
+                return CalorieChart(state.weeklyCalorieData);
+              } else if (state is CalorieError) {
+                return Center(child: Text(state.message));
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            });
           } else if (user.emailVerified) {
-            return const MyHomePage();
+            return BlocBuilder<CalorieBloc, CalorieState>(
+                builder: (context, state) {
+              if (state is CalorieLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is CalorieLoaded) {
+                return CalorieChart(state.weeklyCalorieData);
+              } else if (state is CalorieError) {
+                return Center(child: Text(state.message));
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            });
           } else {
             return const AuthScreen();
           }
