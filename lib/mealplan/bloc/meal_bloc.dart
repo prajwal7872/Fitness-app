@@ -141,6 +141,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       final state = this.state as MealPlanLoaded;
       print('mealIndex = ${event.mealIndex}');
       print('currentMealIndex= ${state.currentMealIndex}');
+
       final showAcceptButton = event.mealIndex == state.currentMealIndex;
       print(showAcceptButton);
       emit(MealPlanLoaded(
