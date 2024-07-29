@@ -139,11 +139,14 @@ class MealBloc extends Bloc<MealEvent, MealState> {
 
     on<ShowMealDescriptionEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
-      print('mealIndex = ${event.mealIndex}');
-      print('currentMealIndex= ${state.currentMealIndex}');
+      bool showAcceptButton;
 
-      final showAcceptButton = event.mealIndex == state.currentMealIndex;
-      print(showAcceptButton);
+      if (state.currentMealIndex == 3) {
+        showAcceptButton = false;
+      } else {
+        showAcceptButton = event.mealIndex == state.currentMealIndex;
+      }
+
       emit(MealPlanLoaded(
         state.statusData,
         state.acceptedMeals,
@@ -160,14 +163,15 @@ class MealBloc extends Bloc<MealEvent, MealState> {
         final currentState = this.state as MealPlanLoaded;
         if (currentState.selectedMealIndex == event.mealIndex) {
           emit(MealPlanLoaded(
-              currentState.statusData,
-              currentState.acceptedMeals,
-              currentState.rejectedMeals,
-              currentState.currentMealIndex,
-              true,
-              currentState.currentMealIndex,
-              -1,
-              0));
+            currentState.statusData,
+            currentState.acceptedMeals,
+            currentState.rejectedMeals,
+            currentState.currentMealIndex,
+            currentState.currentMealIndex != 3,
+            currentState.currentMealIndex,
+            -1,
+            0,
+          ));
         }
       }
     });
