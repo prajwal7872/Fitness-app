@@ -119,17 +119,6 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                   child: FloatingActionButton(
                                     backgroundColor: Colors.blue,
                                     onPressed: () {
-                                      if (state.currentMealIndex == 3) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            backgroundColor: Colors.blue,
-                                            content: Text(
-                                                'Congrats, data updated for today.'),
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
-                                      }
                                       context.read<MealBloc>().add(
                                           AcceptMealEvent(
                                               state.selectedBottleIndex));

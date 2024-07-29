@@ -264,19 +264,19 @@ class MealBloc extends Bloc<MealEvent, MealState> {
         if (!state.rejectedMeals[currentMealIndex] &&
             !state.acceptedMeals[currentMealIndex]) {
           if (currentMealData['statusLabel'] == 'Breakfast' &&
-              now.hour >= 24 &&
+              now.hour >= 9 &&
               now.minute >= 0) {
             add(RejectMealEvent());
           } else if (currentMealData['statusLabel'] == 'Lunch' &&
-              now.hour >= 24 &&
+              now.hour >= 13 &&
               now.minute >= 0) {
             add(RejectMealEvent());
           } else if (currentMealData['statusLabel'] == 'Snacks' &&
-              now.hour >= 24 &&
+              now.hour >= 17 &&
               now.minute >= 0) {
             add(RejectMealEvent());
           } else if (currentMealData['statusLabel'] == 'Dinner' &&
-              now.hour >= 24 &&
+              now.hour >= 21 &&
               now.minute >= 0) {
             add(RejectMealEvent());
           }
