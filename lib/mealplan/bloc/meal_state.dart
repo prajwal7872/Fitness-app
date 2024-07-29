@@ -18,17 +18,18 @@ class MealPlanLoaded extends MealState {
   final int selectedMealIndex;
   final int selectedBottleIndex;
   final int waterIntake;
+  final bool isLastMealAcceptedOrRejected;
 
   const MealPlanLoaded(
-    this.statusData,
-    this.acceptedMeals,
-    this.rejectedMeals,
-    this.currentMealIndex,
-    this.showAcceptButton,
-    this.selectedMealIndex,
-    this.selectedBottleIndex,
-    this.waterIntake,
-  );
+      this.statusData,
+      this.acceptedMeals,
+      this.rejectedMeals,
+      this.currentMealIndex,
+      this.showAcceptButton,
+      this.selectedMealIndex,
+      this.selectedBottleIndex,
+      this.waterIntake,
+      this.isLastMealAcceptedOrRejected);
 
   @override
   List<Object> get props => [
@@ -40,6 +41,7 @@ class MealPlanLoaded extends MealState {
         selectedMealIndex,
         selectedBottleIndex,
         waterIntake,
+        isLastMealAcceptedOrRejected
       ];
 }
 

@@ -76,13 +76,16 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           true,
           0,
           -1,
-          0));
+          0,
+          false));
       _startAutoRejectTimer();
     });
 
     on<AcceptMealEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       final acceptedMeals = List<bool>.from(state.acceptedMeals);
+      final isLastMealAcceptedOrRejected = state.selectedMealIndex == 3;
+
       if (state.currentMealIndex < acceptedMeals.length) {
         acceptedMeals[state.currentMealIndex] = true;
       }
@@ -103,7 +106,8 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           true,
           nextMealIndex,
           state.selectedBottleIndex,
-          state.waterIntake));
+          state.waterIntake,
+          isLastMealAcceptedOrRejected));
 
       if (state.currentMealIndex == 3) {
         emit(MealPlanLoaded(
@@ -114,7 +118,8 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             false,
             state.currentMealIndex,
             state.selectedBottleIndex,
-            state.waterIntake));
+            state.waterIntake,
+            isLastMealAcceptedOrRejected));
       }
       await _recordWaterIntake(state.waterIntake, state.currentMealIndex);
     });
@@ -122,18 +127,36 @@ class MealBloc extends Bloc<MealEvent, MealState> {
     on<RejectMealEvent>((event, emit) {
       final state = this.state as MealPlanLoaded;
       final rejectedMeals = List<bool>.from(state.rejectedMeals);
+      final isLastMealAcceptedOrRejected = state.selectedMealIndex == 3;
+
       if (state.currentMealIndex < rejectedMeals.length) {
         rejectedMeals[state.currentMealIndex] = true;
       }
       final nextMealIndex = state.currentMealIndex < state.statusData.length - 1
           ? state.currentMealIndex + 1
           : state.currentMealIndex;
-      emit(MealPlanLoaded(state.statusData, state.acceptedMeals, rejectedMeals,
-          nextMealIndex, true, nextMealIndex, -1, 0));
+      emit(MealPlanLoaded(
+          state.statusData,
+          state.acceptedMeals,
+          rejectedMeals,
+          nextMealIndex,
+          true,
+          nextMealIndex,
+          -1,
+          0,
+          isLastMealAcceptedOrRejected));
 
       if (state.currentMealIndex == 3) {
-        emit(MealPlanLoaded(state.statusData, state.acceptedMeals,
-            rejectedMeals, nextMealIndex, false, nextMealIndex, -1, 0));
+        emit(MealPlanLoaded(
+            state.statusData,
+            state.acceptedMeals,
+            rejectedMeals,
+            nextMealIndex,
+            false,
+            nextMealIndex,
+            -1,
+            0,
+            isLastMealAcceptedOrRejected));
       }
     });
 
@@ -148,30 +171,30 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
 
       emit(MealPlanLoaded(
-        state.statusData,
-        state.acceptedMeals,
-        state.rejectedMeals,
-        state.currentMealIndex,
-        showAcceptButton,
-        event.mealIndex,
-        -1,
-        0,
-      ));
+          state.statusData,
+          state.acceptedMeals,
+          state.rejectedMeals,
+          state.currentMealIndex,
+          showAcceptButton,
+          event.mealIndex,
+          -1,
+          0,
+          false));
 
       if (event.mealIndex != state.currentMealIndex) {
         await Future.delayed(const Duration(seconds: 5));
         final currentState = this.state as MealPlanLoaded;
         if (currentState.selectedMealIndex == event.mealIndex) {
           emit(MealPlanLoaded(
-            currentState.statusData,
-            currentState.acceptedMeals,
-            currentState.rejectedMeals,
-            currentState.currentMealIndex,
-            currentState.currentMealIndex != 3,
-            currentState.currentMealIndex,
-            -1,
-            0,
-          ));
+              currentState.statusData,
+              currentState.acceptedMeals,
+              currentState.rejectedMeals,
+              currentState.currentMealIndex,
+              currentState.currentMealIndex != 3,
+              currentState.currentMealIndex,
+              -1,
+              0,
+              false));
         }
       }
     });
@@ -181,15 +204,15 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       final newWaterIntake = (event.bottleIndex + 1) * 1000;
 
       emit(MealPlanLoaded(
-        state.statusData,
-        state.acceptedMeals,
-        state.rejectedMeals,
-        state.currentMealIndex,
-        state.showAcceptButton,
-        state.selectedMealIndex,
-        event.bottleIndex,
-        newWaterIntake,
-      ));
+          state.statusData,
+          state.acceptedMeals,
+          state.rejectedMeals,
+          state.currentMealIndex,
+          state.showAcceptButton,
+          state.selectedMealIndex,
+          event.bottleIndex,
+          newWaterIntake,
+          state.isLastMealAcceptedOrRejected));
     });
   }
 
