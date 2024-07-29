@@ -49,10 +49,6 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
               final acceptedMeals = state.acceptedMeals;
               final rejectedMeals = state.rejectedMeals;
               final showAcceptButton = state.showAcceptButton;
-              final isLastMealAcceptedOrRejected =
-                  state.isLastMealAcceptedOrRejected;
-
-              print('selectedMealIndex $selectedMealIndex');
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,30 +98,17 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (!isLastMealAcceptedOrRejected)
-                              Text(
-                                selectedMeal['mealDescription'],
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
+                            Text(
+                              selectedMeal['mealDescription'],
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
                             const SizedBox(height: 15),
-                            if (!isLastMealAcceptedOrRejected)
-                              NutritionalTable(
-                                nutritionalPlan:
-                                    selectedMeal['nutritionalPlan'],
-                              )
-                            else
-                              const Center(
-                                child: Text(
-                                  'Your meal is updated for today!',
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
+                            NutritionalTable(
+                              nutritionalPlan: selectedMeal['nutritionalPlan'],
+                            ),
                             const SizedBox(height: 10),
-                            if (showAcceptButton &&
-                                !isLastMealAcceptedOrRejected)
+                            if (showAcceptButton)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -162,6 +145,16 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                     ),
                                   ),
                                 ],
+                              ),
+                            if (state.updateMessage.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: Text(
+                                  state.updateMessage,
+                                  style: const TextStyle(
+                                      fontSize: 20, color: Colors.black),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                           ],
                         )),
