@@ -50,8 +50,6 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
               final rejectedMeals = state.rejectedMeals;
               final showAcceptButton = state.showAcceptButton;
 
-              print('selectedMealIndex $selectedMealIndex');
-
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -96,83 +94,70 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       borderRadius: BorderRadius.circular(25.0),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            selectedMeal['mealDescription'],
-                            style: const TextStyle(
-                                fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 15),
-                          NutritionalTable(
-                            nutritionalPlan: selectedMeal['nutritionalPlan'],
-                          ),
-                          const SizedBox(height: 10),
-                          if (showAcceptButton)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 80,
-                                  child: FloatingActionButton(
-                                    backgroundColor: Colors.blue,
-                                    onPressed: () {
-                                      if (state.currentMealIndex == 3) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            backgroundColor: Colors.blue,
-                                            content: Text(
-                                                'Congrats, data updated for today.'),
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
-                                      }
-                                      context.read<MealBloc>().add(
-                                          AcceptMealEvent(
-                                              state.selectedBottleIndex));
-                                    },
-                                    child: const Text(
-                                      'Accept',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                SizedBox(
-                                  width: 80,
-                                  child: FloatingActionButton(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 255, 72, 59),
-                                    onPressed: () {
-                                      if (state.currentMealIndex == 3) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            backgroundColor: Colors.blue,
-                                            content: Text(
-                                                'Congrats, data updated for today.'),
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
-                                      }
-                                      context
-                                          .read<MealBloc>()
-                                          .add(RejectMealEvent());
-                                    },
-                                    child: const Text(
-                                      'Reject',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              selectedMeal['mealDescription'],
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             ),
-                        ],
-                      ),
-                    ),
+                            const SizedBox(height: 15),
+                            NutritionalTable(
+                              nutritionalPlan: selectedMeal['nutritionalPlan'],
+                            ),
+                            const SizedBox(height: 10),
+                            if (showAcceptButton)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 80,
+                                    child: FloatingActionButton(
+                                      backgroundColor: Colors.blue,
+                                      onPressed: () {
+                                        context.read<MealBloc>().add(
+                                            AcceptMealEvent(
+                                                state.selectedBottleIndex));
+                                      },
+                                      child: const Text(
+                                        'Accept',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  SizedBox(
+                                    width: 80,
+                                    child: FloatingActionButton(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 255, 72, 59),
+                                      onPressed: () {
+                                        context
+                                            .read<MealBloc>()
+                                            .add(RejectMealEvent());
+                                      },
+                                      child: const Text(
+                                        'Reject',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            if (state.updateMessage.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: Text(
+                                  state.updateMessage,
+                                  style: const TextStyle(
+                                      fontSize: 20, color: Colors.black),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                          ],
+                        )),
                   ),
                   const SizedBox(height: 20),
                   LunchCountdownWithRecipe(
