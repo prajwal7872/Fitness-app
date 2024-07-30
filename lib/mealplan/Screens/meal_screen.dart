@@ -357,25 +357,16 @@ class LunchCountdownWithRecipe extends StatelessWidget {
     required this.recipeLink,
   });
 
-  Future<void> _launchURL() async {
-    final Uri url = Uri.parse(recipeLink);
-    if (await canLaunchUrl(url)) {
-      try {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } catch (e) {
-        print('Error launching URL: $e');
-      }
-    } else {
-      print('Cannot launch URL: $url');
-      throw Exception('Could not launch $url');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final Uri url = Uri.parse(recipeLink);
     return Center(
       child: InkWell(
-        onTap: _launchURL,
+        onTap: () async {
+          if (!await launchUrl(url)) {
+            throw Exception('could not launch $url');
+          }
+        },
         child: Column(
           children: [
             Text(
