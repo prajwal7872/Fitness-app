@@ -51,7 +51,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             "iron": "1gm"
           },
           "waterCount": 1,
-          "recipeLink": "https://flutter.dev"
+          "recipeLink": "https://facebook.com"
         },
         {
           "image": "assets/images/dinner.jpg",
@@ -64,7 +64,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             "iron": "1gm"
           },
           "waterCount": 1,
-          "recipeLink": "https://flutter.dev"
+          "recipeLink": "https://youtube.com"
         }
       ];
 
@@ -98,7 +98,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
 
       String updateMessage = state.currentMealIndex == 3
-          ? 'Your meal plan is updated! for today'
+          ? 'Your meal plan is updated for today'
           : '';
 
       emit(MealPlanLoaded(
@@ -140,8 +140,9 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           ? state.currentMealIndex + 1
           : state.currentMealIndex;
 
-      String updateMessage =
-          state.currentMealIndex == 3 ? 'Your meal plan is updated!' : '';
+      String updateMessage = state.currentMealIndex == 3
+          ? 'Your meal plan is updated for today'
+          : '';
 
       emit(MealPlanLoaded(
         state.statusData,
@@ -172,8 +173,9 @@ class MealBloc extends Bloc<MealEvent, MealState> {
     on<ShowMealDescriptionEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       bool showAcceptButton;
-      String updateMessage =
-          state.currentMealIndex == 3 ? 'Your meal plan is updated!' : '';
+      String updateMessage = state.currentMealIndex == 3
+          ? 'Your meal plan is updated for today'
+          : '';
 
       if (state.currentMealIndex == 3) {
         showAcceptButton = false;

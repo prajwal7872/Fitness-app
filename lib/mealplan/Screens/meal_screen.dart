@@ -6,6 +6,7 @@ import 'package:loginpage/mealplan/bloc/meal_bloc.dart';
 import 'package:loginpage/mealplan/bloc/meal_event.dart';
 import 'package:loginpage/mealplan/bloc/meal_state.dart';
 import 'package:timeline_tile/timeline_tile.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MealPlanScreen extends StatefulWidget {
   const MealPlanScreen({super.key});
@@ -163,6 +164,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                   LunchCountdownWithRecipe(
                     imagePath: selectedMeal['image'],
                     mealName: selectedMeal['statusLabel'],
+                    recipeLink: selectedMeal['recipeLink'],
                   ),
                   const SizedBox(height: 20),
                   const BottleList()
@@ -346,80 +348,104 @@ class NutritionalTable extends StatelessWidget {
 class LunchCountdownWithRecipe extends StatelessWidget {
   final String imagePath;
   final String mealName;
-  const LunchCountdownWithRecipe(
-      {super.key, required this.imagePath, required this.mealName});
+  final String recipeLink;
+
+  const LunchCountdownWithRecipe({
+    super.key,
+    required this.imagePath,
+    required this.mealName,
+    required this.recipeLink,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final Uri url = Uri.parse(recipeLink);
     return Center(
-      child: Column(
-        children: [
-          Text(
-            '$mealName time starts in 30 mins',
-            style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          const Text(
-            'Get preparing!',
-            style: TextStyle(
-                fontSize: 26, fontWeight: FontWeight.bold, color: Colors.red),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 234, 205, 239),
-              border: Border.all(color: Colors.transparent),
-              borderRadius: BorderRadius.circular(50.0),
+      child: InkWell(
+        onTap: () async {
+          if (!await launchUrl(url)) {
+            throw Exception('could not launch $url');
+          }
+        },
+        child: Column(
+          children: [
+            Text(
+              '$mealName time starts in 30 mins',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
-            child: Row(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    ClipOval(
-                      child: Image.asset(
-                        imagePath,
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    ...List.generate(3, (index) {
-                      return Positioned(
-                        left: 200 + index * 40,
-                        bottom: 130,
-                        child: SizedBox(
-                          height: 105,
-                          width: 50,
-                          child: Image.asset(
-                            'assets/images/bottle1.jpg',
-                            fit: BoxFit.contain,
-                          ),
+            const Text(
+              'Get preparing!',
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 234, 205, 239),
+                border: Border.all(color: Colors.transparent),
+                borderRadius: BorderRadius.circular(50.0),
+              ),
+              child: Row(
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      ClipOval(
+                        child: Image.asset(
+                          imagePath,
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.cover,
                         ),
-                      );
-                    }),
-                  ],
-                ),
-                const SizedBox(width: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Check out the recipe',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '15 min\'s preparing time',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              ],
+                      ),
+                      ...List.generate(3, (index) {
+                        return Positioned(
+                          left: 200 + index * 40,
+                          bottom: 130,
+                          child: SizedBox(
+                            height: 105,
+                            width: 50,
+                            child: Image.asset(
+                              'assets/images/bottle1.jpg',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                  const SizedBox(width: 10),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Check out the recipe',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '15 min\'s preparing time',
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
