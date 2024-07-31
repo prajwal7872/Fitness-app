@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 class MealBloc extends Bloc<MealEvent, MealState> {
   Timer? _timer;
+  Timer? _showButtonTimer;
 
   MealBloc() : super(MealInitial()) {
     on<LoadStatusDataEvent>((event, emit) {
@@ -180,47 +181,50 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
     });
 
-    // on<ShowMealDescriptionEvent>((event, emit) async {
-    //   final state = this.state as MealPlanLoaded;
-
-    //   bool showAcceptButton = event.mealIndex == state.currentMealIndex;
-
-    //   print(showAcceptButton);
-    //   emit(MealPlanLoaded(
-    //       state.statusData,
-    //       state.acceptedMeals,
-    //       state.rejectedMeals,
-    //       state.currentMealIndex,
-    //       showAcceptButton,
-    //       event.mealIndex,
-    //       -1,
-    //       0,
-    //       state.updateMessage));
-    // });
-    on<ShowMealDescriptionEvent>((event, emit) {
+    on<ShowMealDescriptionEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
 
-      bool showAcceptButton = event.mealIndex == state.currentMealIndex;
-      final totalButtonPresses =
-          state.acceptedMeals.where((meal) => meal).length +
-              state.rejectedMeals.where((meal) => meal).length;
-      if (state.currentMealIndex == 3 && totalButtonPresses >= 4) {
-        showAcceptButton = false;
+      if (state.currentMealIndex == 3 && state.rejectedMeals[3]) {
+        emit(MealPlanLoaded(
+          state.statusData,
+          state.acceptedMeals,
+          state.rejectedMeals,
+          state.currentMealIndex,
+          false,
+          state.currentMealIndex,
+          -1,
+          0,
+          state.updateMessage,
+        ));
+      } else {
+        bool showAcceptButton = event.mealIndex == state.currentMealIndex;
+        final totalButtonPresses =
+            state.acceptedMeals.where((meal) => meal).length +
+                state.rejectedMeals.where((meal) => meal).length;
+        if (state.currentMealIndex == 3 && totalButtonPresses >= 4) {
+          showAcceptButton = false;
+        }
+        _showButtonTimer?.cancel();
+
+        if (!showAcceptButton) {
+          _showButtonTimer = Timer(const Duration(seconds: 5), () {
+            add(ShowMealDescriptionEvent(state.currentMealIndex));
+          });
+        }
+
+        emit(MealPlanLoaded(
+          state.statusData,
+          state.acceptedMeals,
+          state.rejectedMeals,
+          state.currentMealIndex,
+          showAcceptButton,
+          event.mealIndex,
+          state.selectedBottleIndex,
+          state.waterIntake,
+          state.updateMessage,
+        ));
       }
-
-      emit(MealPlanLoaded(
-        state.statusData,
-        state.acceptedMeals,
-        state.rejectedMeals,
-        state.currentMealIndex,
-        showAcceptButton,
-        event.mealIndex,
-        -1,
-        0,
-        state.updateMessage,
-      ));
     });
-
     on<SelectBottleEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       final newWaterIntake = (event.bottleIndex + 1) * 1000;
@@ -333,6 +337,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
   @override
   Future<void> close() {
     _timer?.cancel();
+
     return super.close();
   }
 
