@@ -97,9 +97,14 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             state.statusData[state.currentMealIndex]);
       }
 
-      String updateMessage = state.currentMealIndex == 3
-          ? 'Your meal plan is updated for today'
-          : '';
+      String updateMessage = '';
+      if (nextMealIndex == state.statusData.length - 1) {
+        if (acceptedMeals.where((meal) => meal).length +
+                state.rejectedMeals.where((meal) => meal).length ==
+            state.statusData.length) {
+          updateMessage = 'Your meal plan is updated for today';
+        }
+      }
 
       emit(MealPlanLoaded(
         state.statusData,
@@ -140,9 +145,14 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           ? state.currentMealIndex + 1
           : state.currentMealIndex;
 
-      String updateMessage = state.currentMealIndex == 3
-          ? 'Your meal plan is updated for today'
-          : '';
+      String updateMessage = '';
+      if (nextMealIndex == state.statusData.length - 1) {
+        if (state.acceptedMeals.where((meal) => meal).length +
+                rejectedMeals.where((meal) => meal).length ==
+            state.statusData.length) {
+          updateMessage = 'Your meal plan is updated for today';
+        }
+      }
 
       emit(MealPlanLoaded(
         state.statusData,
@@ -170,12 +180,10 @@ class MealBloc extends Bloc<MealEvent, MealState> {
         ));
       }
     });
+
     on<ShowMealDescriptionEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       bool showAcceptButton;
-      String updateMessage = state.currentMealIndex == 3
-          ? 'Your meal plan is updated for today'
-          : '';
 
       if (state.currentMealIndex == 3) {
         showAcceptButton = false;
@@ -192,7 +200,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           event.mealIndex,
           -1,
           0,
-          updateMessage));
+          state.updateMessage));
 
       if (event.mealIndex != state.currentMealIndex) {
         await Future.delayed(const Duration(seconds: 5));
@@ -207,7 +215,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
               currentState.currentMealIndex,
               -1,
               0,
-              updateMessage));
+              currentState.updateMessage));
         }
       }
     });
@@ -228,7 +236,6 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           ''));
     });
   }
-
   Future<bool> _requestHealthPermission() async {
     final status = await Permission.activityRecognition.request();
     if (status.isGranted) {
@@ -324,6 +331,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
   @override
   Future<void> close() {
     _timer?.cancel();
+
     return super.close();
   }
 

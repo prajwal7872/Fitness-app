@@ -45,38 +45,3 @@ class MealPlanLoaded extends MealState {
         updateMessage,
       ];
 }
-
-
-
-
-    // on<ShowMealDescriptionEvent>((event, emit) async {
-    //   final state = this.state as MealPlanLoaded;
-    //   print(' mealIndex = ${event.mealIndex}');
-    //   print('currentMealIndex = ${state.currentMealIndex}');
-
-    //   final showAcceptButton = event.mealIndex == state.currentMealIndex;
-    //   print(showAcceptButton);
-
-    //   emit(MealPlanLoaded(
-    //       state.statusData,
-    //       state.acceptedMeals,
-    //       state.rejectedMeals,
-    //       state.currentMealIndex,
-    //       showAcceptButton,
-    //       event.mealIndex,
-    //       -1,
-    //       0));
-
-    //   if (state.currentMealIndex != event.mealIndex) {
-    //     await Future.delayed(const Duration(seconds: 5));
-    //     emit(MealPlanLoaded(
-    //         state.statusData,
-    //         state.acceptedMeals,
-    //         state.rejectedMeals,
-    //         state.currentMealIndex,
-    //         true,
-    //         state.currentMealIndex,
-    //         -1,
-    //         0));
-    //   }
-    // });

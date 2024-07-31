@@ -370,7 +370,7 @@ class LunchCountdownWithRecipe extends StatelessWidget {
         child: Column(
           children: [
             Text(
-              '$mealName time starts in 30 mins',
+              '$mealName time starts in 30 mins  ',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
