@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 class MealBloc extends Bloc<MealEvent, MealState> {
   Timer? _timer;
+  Timer? _showButtonTimer;
 
   MealBloc() : super(MealInitial()) {
     on<LoadStatusDataEvent>((event, emit) {
@@ -97,9 +98,14 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             state.statusData[state.currentMealIndex]);
       }
 
-      String updateMessage = state.currentMealIndex == 3
-          ? 'Your meal plan is updated for today'
-          : '';
+      String updateMessage = '';
+      if (nextMealIndex == state.statusData.length - 1) {
+        if (acceptedMeals.where((meal) => meal).length +
+                state.rejectedMeals.where((meal) => meal).length ==
+            state.statusData.length) {
+          updateMessage = 'Your meal plan is updated for today';
+        }
+      }
 
       emit(MealPlanLoaded(
         state.statusData,
@@ -126,7 +132,6 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           updateMessage,
         ));
       }
-      await _recordWaterIntake(state.waterIntake, state.currentMealIndex);
     });
 
     on<RejectMealEvent>((event, emit) {
@@ -140,9 +145,14 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           ? state.currentMealIndex + 1
           : state.currentMealIndex;
 
-      String updateMessage = state.currentMealIndex == 3
-          ? 'Your meal plan is updated for today'
-          : '';
+      String updateMessage = '';
+      if (nextMealIndex == state.statusData.length - 1) {
+        if (state.acceptedMeals.where((meal) => meal).length +
+                rejectedMeals.where((meal) => meal).length ==
+            state.statusData.length) {
+          updateMessage = 'Your meal plan is updated for today';
+        }
+      }
 
       emit(MealPlanLoaded(
         state.statusData,
@@ -170,49 +180,52 @@ class MealBloc extends Bloc<MealEvent, MealState> {
         ));
       }
     });
+
     on<ShowMealDescriptionEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
-      bool showAcceptButton;
-      String updateMessage = state.currentMealIndex == 3
-          ? 'Your meal plan is updated for today'
-          : '';
 
-      if (state.currentMealIndex == 3) {
-        showAcceptButton = false;
+      if (state.currentMealIndex == 3 && state.rejectedMeals[3]) {
+        emit(MealPlanLoaded(
+          state.statusData,
+          state.acceptedMeals,
+          state.rejectedMeals,
+          state.currentMealIndex,
+          false,
+          state.currentMealIndex,
+          -1,
+          0,
+          state.updateMessage,
+        ));
       } else {
-        showAcceptButton = event.mealIndex == state.currentMealIndex;
-      }
+        bool showAcceptButton = event.mealIndex == state.currentMealIndex;
+        final totalButtonPresses =
+            state.acceptedMeals.where((meal) => meal).length +
+                state.rejectedMeals.where((meal) => meal).length;
+        if (state.currentMealIndex == 3 && totalButtonPresses >= 4) {
+          showAcceptButton = false;
+        }
+        _showButtonTimer?.cancel();
 
-      emit(MealPlanLoaded(
+        if (!showAcceptButton) {
+          _showButtonTimer = Timer(const Duration(seconds: 5), () {
+            add(ShowMealDescriptionEvent(state.currentMealIndex));
+          });
+        }
+
+        emit(MealPlanLoaded(
           state.statusData,
           state.acceptedMeals,
           state.rejectedMeals,
           state.currentMealIndex,
           showAcceptButton,
           event.mealIndex,
-          -1,
-          0,
-          updateMessage));
-
-      if (event.mealIndex != state.currentMealIndex) {
-        await Future.delayed(const Duration(seconds: 5));
-        final currentState = this.state as MealPlanLoaded;
-        if (currentState.selectedMealIndex == event.mealIndex) {
-          emit(MealPlanLoaded(
-              currentState.statusData,
-              currentState.acceptedMeals,
-              currentState.rejectedMeals,
-              currentState.currentMealIndex,
-              currentState.currentMealIndex != 3,
-              currentState.currentMealIndex,
-              -1,
-              0,
-              updateMessage));
-        }
+          state.selectedBottleIndex,
+          state.waterIntake,
+          state.updateMessage,
+        ));
       }
     });
-
-    on<SelectBottleEvent>((event, emit) {
+    on<SelectBottleEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       final newWaterIntake = (event.bottleIndex + 1) * 1000;
 
@@ -225,10 +238,10 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           state.selectedMealIndex,
           event.bottleIndex,
           newWaterIntake,
-          ''));
+          state.updateMessage));
+      await _recordWaterIntake(newWaterIntake);
     });
   }
-
   Future<bool> _requestHealthPermission() async {
     final status = await Permission.activityRecognition.request();
     if (status.isGranted) {
@@ -308,7 +321,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
               now.minute >= 0) {
             add(RejectMealEvent());
           } else if (currentMealData['statusLabel'] == 'Snacks' &&
-              now.hour >= 17 &&
+              now.hour >= 18 &&
               now.minute >= 0) {
             add(RejectMealEvent());
           } else if (currentMealData['statusLabel'] == 'Dinner' &&
@@ -324,10 +337,11 @@ class MealBloc extends Bloc<MealEvent, MealState> {
   @override
   Future<void> close() {
     _timer?.cancel();
+
     return super.close();
   }
 
-  Future<void> _recordWaterIntake(int waterIntake, int currentMealIndex) async {
+  Future<void> _recordWaterIntake(int waterIntake) async {
     bool granted = await Permission.activityRecognition.request().isGranted;
     if (!granted) {
       granted = await Permission.activityRecognition.request().isGranted;
