@@ -180,39 +180,45 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
     });
 
-    on<ShowMealDescriptionEvent>((event, emit) async {
+    // on<ShowMealDescriptionEvent>((event, emit) async {
+    //   final state = this.state as MealPlanLoaded;
+
+    //   bool showAcceptButton = event.mealIndex == state.currentMealIndex;
+
+    //   print(showAcceptButton);
+    //   emit(MealPlanLoaded(
+    //       state.statusData,
+    //       state.acceptedMeals,
+    //       state.rejectedMeals,
+    //       state.currentMealIndex,
+    //       showAcceptButton,
+    //       event.mealIndex,
+    //       -1,
+    //       0,
+    //       state.updateMessage));
+    // });
+    on<ShowMealDescriptionEvent>((event, emit) {
       final state = this.state as MealPlanLoaded;
-      bool showAcceptButton = event.mealIndex == state.currentMealIndex &&
-          state.currentMealIndex < state.statusData.length - 1;
+
+      bool showAcceptButton = event.mealIndex == state.currentMealIndex;
+      final totalButtonPresses =
+          state.acceptedMeals.where((meal) => meal).length +
+              state.rejectedMeals.where((meal) => meal).length;
+      if (state.currentMealIndex == 3 && totalButtonPresses >= 4) {
+        showAcceptButton = false;
+      }
 
       emit(MealPlanLoaded(
-          state.statusData,
-          state.acceptedMeals,
-          state.rejectedMeals,
-          state.currentMealIndex,
-          showAcceptButton,
-          event.mealIndex,
-          -1,
-          0,
-          state.updateMessage));
-
-      if (event.mealIndex != state.currentMealIndex) {
-        await Future.delayed(const Duration(seconds: 5));
-        final currentState = this.state as MealPlanLoaded;
-        if (currentState.selectedMealIndex == event.mealIndex) {
-          emit(MealPlanLoaded(
-              currentState.statusData,
-              currentState.acceptedMeals,
-              currentState.rejectedMeals,
-              currentState.currentMealIndex,
-              currentState.currentMealIndex <
-                  currentState.statusData.length - 1,
-              currentState.currentMealIndex,
-              -1,
-              0,
-              currentState.updateMessage));
-        }
-      }
+        state.statusData,
+        state.acceptedMeals,
+        state.rejectedMeals,
+        state.currentMealIndex,
+        showAcceptButton,
+        event.mealIndex,
+        -1,
+        0,
+        state.updateMessage,
+      ));
     });
 
     on<SelectBottleEvent>((event, emit) async {
@@ -311,7 +317,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
               now.minute >= 0) {
             add(RejectMealEvent());
           } else if (currentMealData['statusLabel'] == 'Snacks' &&
-              now.hour >= 17 &&
+              now.hour >= 18 &&
               now.minute >= 0) {
             add(RejectMealEvent());
           } else if (currentMealData['statusLabel'] == 'Dinner' &&
