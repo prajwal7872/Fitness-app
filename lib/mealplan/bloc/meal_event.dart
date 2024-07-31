@@ -37,12 +37,3 @@ class SelectBottleEvent extends MealEvent {
   @override
   List<Object> get props => [bottleIndex];
 }
-
-class UpdateCountdownEvent extends MealEvent {
-  final String remainingTime;
-
-  const UpdateCountdownEvent(this.remainingTime);
-
-  @override
-  List<Object> get props => [remainingTime];
-}

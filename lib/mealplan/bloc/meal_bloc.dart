@@ -183,13 +183,8 @@ class MealBloc extends Bloc<MealEvent, MealState> {
 
     on<ShowMealDescriptionEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
-      bool showAcceptButton;
-
-      if (state.currentMealIndex == 3) {
-        showAcceptButton = false;
-      } else {
-        showAcceptButton = event.mealIndex == state.currentMealIndex;
-      }
+      bool showAcceptButton = event.mealIndex == state.currentMealIndex &&
+          state.currentMealIndex < state.statusData.length - 1;
 
       emit(MealPlanLoaded(
           state.statusData,
@@ -211,7 +206,8 @@ class MealBloc extends Bloc<MealEvent, MealState> {
               currentState.acceptedMeals,
               currentState.rejectedMeals,
               currentState.currentMealIndex,
-              currentState.currentMealIndex != 3,
+              currentState.currentMealIndex <
+                  currentState.statusData.length - 1,
               currentState.currentMealIndex,
               -1,
               0,
