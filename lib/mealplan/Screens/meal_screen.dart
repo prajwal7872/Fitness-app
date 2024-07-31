@@ -409,7 +409,7 @@ class LunchCountdownWithRecipe extends StatelessWidget {
                       ...List.generate(3, (index) {
                         return Positioned(
                           left: 200 + index * 40,
-                          bottom: 130,
+                          bottom: 135,
                           child: SizedBox(
                             height: 105,
                             width: 50,

@@ -131,7 +131,6 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           updateMessage,
         ));
       }
-      await _recordWaterIntake(state.waterIntake, state.currentMealIndex);
     });
 
     on<RejectMealEvent>((event, emit) {
@@ -216,7 +215,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
     });
 
-    on<SelectBottleEvent>((event, emit) {
+    on<SelectBottleEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       final newWaterIntake = (event.bottleIndex + 1) * 1000;
 
@@ -230,6 +229,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           event.bottleIndex,
           newWaterIntake,
           ''));
+      await _recordWaterIntake(newWaterIntake);
     });
   }
   Future<bool> _requestHealthPermission() async {
@@ -327,11 +327,10 @@ class MealBloc extends Bloc<MealEvent, MealState> {
   @override
   Future<void> close() {
     _timer?.cancel();
-
     return super.close();
   }
 
-  Future<void> _recordWaterIntake(int waterIntake, int currentMealIndex) async {
+  Future<void> _recordWaterIntake(int waterIntake) async {
     bool granted = await Permission.activityRecognition.request().isGranted;
     if (!granted) {
       granted = await Permission.activityRecognition.request().isGranted;
