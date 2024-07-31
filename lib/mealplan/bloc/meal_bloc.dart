@@ -228,7 +228,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           state.selectedMealIndex,
           event.bottleIndex,
           newWaterIntake,
-          ''));
+          state.updateMessage));
       await _recordWaterIntake(newWaterIntake);
     });
   }
