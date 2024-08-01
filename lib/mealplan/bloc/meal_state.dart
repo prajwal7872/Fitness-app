@@ -19,6 +19,7 @@ class MealPlanLoaded extends MealState {
   final int selectedBottleIndex;
   final int waterIntake;
   final String updateMessage;
+  final int remainingTime;
 
   const MealPlanLoaded(
     this.statusData,
@@ -30,6 +31,7 @@ class MealPlanLoaded extends MealState {
     this.selectedBottleIndex,
     this.waterIntake,
     this.updateMessage,
+    this.remainingTime,
   );
 
   @override
@@ -43,5 +45,6 @@ class MealPlanLoaded extends MealState {
         selectedBottleIndex,
         waterIntake,
         updateMessage,
+        remainingTime,
       ];
 }

@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 class MealBloc extends Bloc<MealEvent, MealState> {
   Timer? _timer;
   Timer? _showButtonTimer;
+  Timer? _countdownTimer;
 
   MealBloc() : super(MealInitial()) {
     on<LoadStatusDataEvent>((event, emit) {
@@ -78,8 +79,10 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           0,
           -1,
           0,
-          ''));
+          '',
+          0));
       _startAutoRejectTimer();
+      _startCountdownTimer();
     });
 
     on<AcceptMealEvent>((event, emit) async {
@@ -108,30 +111,31 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
 
       emit(MealPlanLoaded(
-        state.statusData,
-        acceptedMeals,
-        state.rejectedMeals,
-        nextMealIndex,
-        true,
-        nextMealIndex,
-        state.selectedBottleIndex,
-        state.waterIntake,
-        updateMessage,
-      ));
-
-      if (state.currentMealIndex == 3) {
-        emit(MealPlanLoaded(
           state.statusData,
           acceptedMeals,
           state.rejectedMeals,
           nextMealIndex,
-          false,
-          state.currentMealIndex,
+          true,
+          nextMealIndex,
           state.selectedBottleIndex,
           state.waterIntake,
           updateMessage,
-        ));
+          state.remainingTime));
+
+      if (state.currentMealIndex == 3) {
+        emit(MealPlanLoaded(
+            state.statusData,
+            acceptedMeals,
+            state.rejectedMeals,
+            nextMealIndex,
+            false,
+            state.currentMealIndex,
+            state.selectedBottleIndex,
+            state.waterIntake,
+            updateMessage,
+            state.remainingTime));
       }
+      _startCountdownTimer();
     });
 
     on<RejectMealEvent>((event, emit) {
@@ -155,30 +159,31 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
 
       emit(MealPlanLoaded(
-        state.statusData,
-        state.acceptedMeals,
-        rejectedMeals,
-        nextMealIndex,
-        true,
-        nextMealIndex,
-        -1,
-        0,
-        updateMessage,
-      ));
-
-      if (state.currentMealIndex == 3) {
-        emit(MealPlanLoaded(
           state.statusData,
           state.acceptedMeals,
           rejectedMeals,
           nextMealIndex,
-          false,
+          true,
           nextMealIndex,
           -1,
           0,
           updateMessage,
-        ));
+          state.remainingTime));
+
+      if (state.currentMealIndex == 3) {
+        emit(MealPlanLoaded(
+            state.statusData,
+            state.acceptedMeals,
+            rejectedMeals,
+            nextMealIndex,
+            false,
+            nextMealIndex,
+            -1,
+            0,
+            updateMessage,
+            state.remainingTime));
       }
+      _startCountdownTimer();
     });
 
     on<ShowMealDescriptionEvent>((event, emit) async {
@@ -186,16 +191,17 @@ class MealBloc extends Bloc<MealEvent, MealState> {
 
       if (state.currentMealIndex == 3 && state.rejectedMeals[3]) {
         emit(MealPlanLoaded(
-          state.statusData,
-          state.acceptedMeals,
-          state.rejectedMeals,
-          state.currentMealIndex,
-          false,
-          state.currentMealIndex,
-          -1,
-          0,
-          state.updateMessage,
-        ));
+            state.statusData,
+            state.acceptedMeals,
+            state.rejectedMeals,
+            state.currentMealIndex,
+            false,
+            state.currentMealIndex,
+            -1,
+            0,
+            state.updateMessage,
+            state.remainingTime));
+        _startCountdownTimer();
       } else {
         bool showAcceptButton = event.mealIndex == state.currentMealIndex;
         final totalButtonPresses =
@@ -213,17 +219,18 @@ class MealBloc extends Bloc<MealEvent, MealState> {
         }
 
         emit(MealPlanLoaded(
-          state.statusData,
-          state.acceptedMeals,
-          state.rejectedMeals,
-          state.currentMealIndex,
-          showAcceptButton,
-          event.mealIndex,
-          state.selectedBottleIndex,
-          state.waterIntake,
-          state.updateMessage,
-        ));
+            state.statusData,
+            state.acceptedMeals,
+            state.rejectedMeals,
+            state.currentMealIndex,
+            showAcceptButton,
+            event.mealIndex,
+            state.selectedBottleIndex,
+            state.waterIntake,
+            state.updateMessage,
+            state.remainingTime));
       }
+      _startCountdownTimer(event.mealIndex);
     });
     on<SelectBottleEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
@@ -238,10 +245,52 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           state.selectedMealIndex,
           event.bottleIndex,
           newWaterIntake,
-          state.updateMessage));
+          state.updateMessage,
+          state.remainingTime));
+
       await _recordWaterIntake(newWaterIntake);
     });
+
+    on<UpdateCountdownEvent>((event, emit) {
+      final state = this.state as MealPlanLoaded;
+      emit(MealPlanLoaded(
+        state.statusData,
+        state.acceptedMeals,
+        state.rejectedMeals,
+        state.currentMealIndex,
+        state.showAcceptButton,
+        state.selectedMealIndex,
+        state.selectedBottleIndex,
+        state.waterIntake,
+        state.updateMessage,
+        event.remainingTime,
+      ));
+    });
   }
+  void _startCountdownTimer([int? mealIndex]) {
+    _countdownTimer?.cancel();
+
+    _countdownTimer = Timer.periodic(const Duration(seconds: 0), (timer) {
+      final state = this.state as MealPlanLoaded;
+      final now = DateTime.now();
+      final currentIndex = mealIndex ?? state.currentMealIndex;
+      final nextMealTime = _getNextMealTime(now, currentIndex);
+      final remainingTime = nextMealTime.difference(now).inSeconds;
+      add(UpdateCountdownEvent(remainingTime));
+    });
+  }
+
+  DateTime _getNextMealTime(DateTime now, int mealIndex) {
+    final mealTimes = [
+      DateTime(now.year, now.month, now.day, 9),
+      DateTime(now.year, now.month, now.day, 13),
+      DateTime(now.year, now.month, now.day, 17),
+      DateTime(now.year, now.month, now.day, 21),
+    ];
+
+    return mealTimes[mealIndex];
+  }
+
   Future<bool> _requestHealthPermission() async {
     final status = await Permission.activityRecognition.request();
     if (status.isGranted) {
@@ -337,7 +386,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
   @override
   Future<void> close() {
     _timer?.cancel();
-
+    _countdownTimer?.cancel();
     return super.close();
   }
 
