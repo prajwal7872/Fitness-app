@@ -3,7 +3,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:health/health.dart';
+import 'package:loginpage/mealplan/Services/permission.dart';
 import 'package:loginpage/mealplan/bloc/meal_event.dart';
 import 'package:loginpage/mealplan/bloc/meal_state.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -83,6 +85,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           0));
       _startAutoRejectTimer();
       _startCountdownTimer();
+      _scheduleMealNotifications(statusData);
     });
 
     on<AcceptMealEvent>((event, emit) async {
@@ -232,6 +235,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       }
       _startCountdownTimer(event.mealIndex);
     });
+
     on<SelectBottleEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       final newWaterIntake = (event.bottleIndex + 1) * 1000;
@@ -267,6 +271,31 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       ));
     });
   }
+
+  void _scheduleMealNotifications(List<Map<String, dynamic>> statusData) {
+    final now = DateTime.now();
+    final mealTimes = [
+      DateTime(now.year, now.month, now.day, 8, 30),
+      DateTime(now.year, now.month, now.day, 12, 30),
+      DateTime(now.year, now.month, now.day, 16, 30),
+      DateTime(now.year, now.month, now.day, 20, 30),
+    ];
+
+    for (int i = 0; i < mealTimes.length; i++) {
+      final mealTime = mealTimes[i];
+      final meal = statusData[i];
+
+      if (mealTime.isAfter(now)) {
+        NotificationHelper.scheduleMealNotification(
+          id: i,
+          title: 'Meal Time',
+          body: ' ${meal['statusLabel']} time ends in 30 mins ',
+          scheduledDate: mealTime,
+        );
+      }
+    }
+  }
+
   void _startCountdownTimer([int? mealIndex]) {
     _countdownTimer?.cancel();
 
