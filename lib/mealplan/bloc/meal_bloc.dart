@@ -278,7 +278,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       DateTime(now.year, now.month, now.day, 8, 30),
       DateTime(now.year, now.month, now.day, 12, 30),
       DateTime(now.year, now.month, now.day, 16, 30),
-      DateTime(now.year, now.month, now.day, 11, 05),
+      DateTime(now.year, now.month, now.day, 20, 30),
     ];
 
     for (int i = 0; i < mealTimes.length; i++) {
