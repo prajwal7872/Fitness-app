@@ -381,7 +381,7 @@ class LunchCountdownWithRecipe extends StatelessWidget {
                   Text(
                     remainingTime.isNegative
                         ? 'Meal plan ended'
-                        : '$mealName time ends in $hours:$minutes:$seconds',
+                        : '$mealName time ends in $hours hours:$minutes min:$seconds sec',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
