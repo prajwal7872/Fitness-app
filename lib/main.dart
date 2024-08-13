@@ -24,7 +24,6 @@ void main() async {
   await HealthService().fetchWeeklyCalorieData();
   await NotificationHelper.initializeNotifications();
   await Permission.notification.request();
-
   runApp(const MyApp());
 }
 

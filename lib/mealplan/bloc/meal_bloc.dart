@@ -26,7 +26,8 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             "fats": "5gm",
             "carbs": "40gm",
             "protein": "20gm",
-            "iron": "1gm"
+            "iron": "1gm",
+            "calcium": "2gm",
           },
           "waterCount": 3,
           "recipeLink": "https://flutter.dev"
@@ -39,7 +40,8 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             "fats": "50gm",
             "carbs": "30gm",
             "protein": "20gm",
-            "iron": "1gm"
+            "iron": "1gm",
+            "calcium": "1gm",
           },
           "waterCount": 1,
           "recipeLink": "https://flutter.dev"
@@ -52,9 +54,10 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             "fats": "25gm",
             "carbs": "20gm",
             "protein": "20gm",
-            "iron": "1gm"
+            "iron": "1gm",
+            "calcium": "4gm",
           },
-          "waterCount": 1,
+          "waterCount": 2,
           "recipeLink": "https://facebook.com"
         },
         {
@@ -65,9 +68,10 @@ class MealBloc extends Bloc<MealEvent, MealState> {
             "fats": "5gm",
             "carbs": "50gm",
             "protein": "30gm",
-            "iron": "1gm"
+            "iron": "1gm",
+            "calcium": "3gm",
           },
-          "waterCount": 1,
+          "waterCount": 4,
           "recipeLink": "https://youtube.com"
         }
       ];
