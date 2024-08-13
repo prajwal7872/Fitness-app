@@ -165,6 +165,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                     imagePath: selectedMeal['image'],
                     mealName: selectedMeal['statusLabel'],
                     recipeLink: selectedMeal['recipeLink'],
+                    waterCount: selectedMeal['waterCount'],
                   ),
                   const SizedBox(height: 20),
                   const BottleList()
@@ -290,55 +291,57 @@ class NutritionalTable extends StatelessWidget {
     final keys = nutritionalPlan.keys.toList();
     final values = nutritionalPlan.values.toList();
 
-    assert(keys.length >= 4 && values.length >= 4);
+    assert(keys.length == values.length);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Table(
           border: TableBorder.all(),
-          children: [
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[0], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[0], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[1], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[1], textAlign: TextAlign.center),
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[2], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[2], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(keys[3], textAlign: TextAlign.center),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(values[3], textAlign: TextAlign.center),
-                ),
-              ],
-            ),
-          ],
+          children: List.generate(
+            (keys.length / 2).ceil(),
+            (index) {
+              final keyIndex1 = index * 2;
+              final keyIndex2 = keyIndex1 + 1;
+              return TableRow(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      keys[keyIndex1],
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      values[keyIndex1],
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  if (keyIndex2 < keys.length) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        keys[keyIndex2],
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        values[keyIndex2],
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ] else ...[
+                    const SizedBox.shrink(),
+                    const SizedBox.shrink(),
+                  ],
+                ],
+              );
+            },
+          ),
         ),
       ],
     );
@@ -349,12 +352,14 @@ class LunchCountdownWithRecipe extends StatelessWidget {
   final String imagePath;
   final String mealName;
   final String recipeLink;
+  final int waterCount;
 
   const LunchCountdownWithRecipe({
     super.key,
     required this.imagePath,
     required this.mealName,
     required this.recipeLink,
+    required this.waterCount,
   });
 
   @override
@@ -417,7 +422,7 @@ class LunchCountdownWithRecipe extends StatelessWidget {
                                 fit: BoxFit.cover,
                               ),
                             ),
-                            ...List.generate(3, (index) {
+                            ...List.generate(waterCount, (index) {
                               return Positioned(
                                 left: 200 + index * 40,
                                 bottom: 135,
