@@ -1,14 +1,19 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/auth/Screens/auth_screen.dart';
+import 'package:loginpage/mealplan/Screens/meal_screen.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/question_state.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
+import 'package:loginpage/sign_up/models/question.dart';
 import 'package:loginpage/sign_up/widgets/accordion_widget.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  final Map<String, dynamic> userDetails;
+
+  const MyHomePage({super.key, required this.userDetails});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -17,71 +22,89 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final PageController _pageController = PageController();
 
-  void _handleAnswerSelection(BuildContext context) {
-    final state = context.read<QuestionBloc>().state;
+  void _handleAnswerSelection(BuildContext context, QuestionsLoaded state) {
+    final updatedAnswers = Map<int, String?>.from(state.selectedAnswers);
 
-    if (state is QuestionsLoaded) {
-      final updatedAnswers = Map<int, String?>.from(state.selectedAnswers);
+    storeSelectedAnswersInUser(
+        updatedAnswers, state.questions, widget.userDetails);
 
-      final currentPage = _pageController.page!.toInt();
-      final startIndex = currentPage * 3;
-      final endIndex = (currentPage * 3 + 3).clamp(0, state.questions.length);
+    final currentPage = _pageController.page!.toInt();
+    final startIndex = currentPage * 3;
+    final endIndex = (currentPage * 3 + 3).clamp(0, state.questions.length);
 
-      bool allQuestionsOnCurrentPageAnswered = true;
-      for (int i = startIndex; i < endIndex; i++) {
-        if (updatedAnswers[state.questions[i].id] == null) {
-          allQuestionsOnCurrentPageAnswered = false;
-          break;
-        }
-      }
-
-      if (allQuestionsOnCurrentPageAnswered) {
-        if (currentPage >= (state.questions.length / 3).ceil() - 1) {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => const AuthScreen(),
-          ));
-        } else {
-          context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
-          context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
-          context
-              .read<QuestionBloc>()
-              .add(UpdateCurrentPageIndex(currentPage + 1));
-
-          _pageController.nextPage(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Please answer all questions.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+    bool allQuestionsOnCurrentPageAnswered = true;
+    for (int i = startIndex; i < endIndex; i++) {
+      if (updatedAnswers[state.questions[i].id] == null) {
+        allQuestionsOnCurrentPageAnswered = false;
+        break;
       }
     }
-  }
 
-  void _handlePreviousPage(BuildContext context) {
-    final state = context.read<QuestionBloc>().state;
-
-    if (state is QuestionsLoaded) {
-      final currentPage = _pageController.page!.toInt();
-
-      if (currentPage > 0) {
-        context.read<QuestionBloc>().add(ChangeOpenSection(currentPage - 1));
-        context.read<QuestionBloc>().add(SetPageIndex(currentPage - 1));
+    if (allQuestionsOnCurrentPageAnswered) {
+      if (currentPage >= (state.questions.length / 3).ceil() - 1) {
+        print(widget.userDetails);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => const MealPlanScreen(),
+        ));
+      } else {
+        context.read<QuestionBloc>().add(ChangeOpenSection(currentPage + 1));
+        context.read<QuestionBloc>().add(SetPageIndex(currentPage + 1));
         context
             .read<QuestionBloc>()
-            .add(UpdateCurrentPageIndex(currentPage - 1));
+            .add(UpdateCurrentPageIndex(currentPage + 1));
 
-        _pageController.previousPage(
+        _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Please answer all questions.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void storeSelectedAnswersInUser(Map<int, String?> answers,
+      List<Question> questions, Map<String, dynamic> userDetails) {
+    Map<String, dynamic> questionnaireData = {};
+
+    answers.forEach((questionId, answer) {
+      final question = questions.firstWhere(
+        (q) => q.id == questionId,
+        orElse: () => const Question(0, '', [], ''),
+      );
+      questionnaireData[question.shortname] = answer;
+    });
+    if (userDetails.containsKey("questionnaire") &&
+        userDetails["questionnaire"] is List) {
+      if (userDetails["questionnaire"].isNotEmpty) {
+        userDetails["questionnaire"]
+            [0] = {...userDetails["questionnaire"][0], ...questionnaireData};
+      } else {
+        userDetails["questionnaire"].add(questionnaireData);
+      }
+    } else {
+      // UserDetails["questionnaire"] = [questionnaireData];
+    }
+  }
+
+  void _handlePreviousPage(BuildContext context, QuestionsLoaded state) {
+    final currentPage = _pageController.page!.toInt();
+
+    if (currentPage > 0) {
+      context.read<QuestionBloc>().add(ChangeOpenSection(currentPage - 1));
+      context.read<QuestionBloc>().add(SetPageIndex(currentPage - 1));
+      context.read<QuestionBloc>().add(UpdateCurrentPageIndex(currentPage - 1));
+
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -89,43 +112,41 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Select your category!',
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-              ),
+        title: const Center(
+          child: Text(
+            'Select your category!',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
             ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              'Your exercise will be curated according to the category that you have selected.',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: 50,
-                  child: BlocBuilder<QuestionBloc, QuestionState>(
-                    builder: (context, state) {
-                      if (state is QuestionsLoaded) {
-                        final indexSet = state.pageIndexes;
-                        return Row(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+        child: BlocBuilder<QuestionBloc, QuestionState>(
+          builder: (context, state) {
+            if (state is QuestionsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is QuestionsLoaded) {
+              final indexSet = state.pageIndexes;
+              final isLastPage = state.currentPageIndex >= 3;
+              return Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Your exercise will be curated according to the category that you have selected.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 50,
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
                             (state.questions.length / 3).ceil(),
@@ -168,20 +189,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             },
                           ),
-                        );
-                      } else {
-                        return const SizedBox();
-                      }
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: BlocBuilder<QuestionBloc, QuestionState>(
-                    builder: (context, state) {
-                      if (state is QuestionsLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (state is QuestionsLoaded) {
-                        return PageView.builder(
+                        ),
+                      ),
+                      Expanded(
+                        child: PageView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           controller: _pageController,
                           itemCount: (state.questions.length / 3).ceil(),
@@ -210,31 +221,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             );
                           },
-                        );
-                      } else {
-                        return const Center(
-                            child: Text('Failed to load questions'));
-                      }
-                    },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: BlocBuilder<QuestionBloc, QuestionState>(
-                builder: (context, state) {
-                  if (state is QuestionsLoaded) {
-                    final isLastPage = state.currentPageIndex >= 3
-                        ? const Text(
-                            'Submit',
-                            style: TextStyle(color: Colors.white),
-                          )
-                        : const Text(
-                            'Next',
-                            style: TextStyle(color: Colors.white),
-                          );
-                    return Padding(
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: SizedBox(
                         width: 80,
@@ -244,34 +237,33 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ? Colors.green
                                 : Colors.grey,
                             onPressed: () {
-                              _handleAnswerSelection(context);
+                              _handleAnswerSelection(context, state);
                             },
-                            child: isLastPage),
+                            child: isLastPage
+                                ? const Text(
+                                    'Submit',
+                                    style: TextStyle(color: Colors.white),
+                                  )
+                                : const Text(
+                                    'Next',
+                                    style: TextStyle(color: Colors.white),
+                                  )),
                       ),
-                    );
-                  } else {
-                    return const SizedBox();
-                  }
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: BlocBuilder<QuestionBloc, QuestionState>(
-                builder: (context, state) {
-                  if (state is QuestionsLoaded) {
-                    final previousButtonColor =
-                        state.currentPageIndex > 0 ? Colors.green : Colors.grey;
-
-                    return Padding(
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: SizedBox(
                         width: 80,
                         child: FloatingActionButton(
                           heroTag: 'previousButton',
-                          backgroundColor: previousButtonColor,
+                          backgroundColor: state.currentPageIndex > 0
+                              ? Colors.green
+                              : Colors.grey,
                           onPressed: () {
-                            _handlePreviousPage(context);
+                            _handlePreviousPage(context, state);
                           },
                           child: const Text(
                             'Previous',
@@ -279,14 +271,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                       ),
-                    );
-                  } else {
-                    return const SizedBox();
-                  }
-                },
-              ),
-            ),
-          ],
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return const Center(child: Text('Failed to load questions'));
+            }
+          },
         ),
       ),
     );
