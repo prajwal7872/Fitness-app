@@ -112,31 +112,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Select your category!',
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-              ),
+        title: const Center(
+          child: Text(
+            'Select your category!',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
             ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              'Your exercise will be curated according to the category that you have selected.',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
         child: BlocBuilder<QuestionBloc, QuestionState>(
           builder: (context, state) {
             if (state is QuestionsLoading) {
@@ -144,12 +131,19 @@ class _MyHomePageState extends State<MyHomePage> {
             } else if (state is QuestionsLoaded) {
               final indexSet = state.pageIndexes;
               final isLastPage = state.currentPageIndex >= 3;
-
               return Stack(
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const Text(
+                        'Your exercise will be curated according to the category that you have selected.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                       SizedBox(
                         height: 50,
                         child: Row(
