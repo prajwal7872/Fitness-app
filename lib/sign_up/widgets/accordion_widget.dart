@@ -37,15 +37,15 @@ class AccordionWidget extends StatelessWidget {
               switch (index % 6) {
                 case 0:
                   contentBgColor = Colors.transparent;
-                  headerBgColor = const Color.fromARGB(255, 208, 230, 249);
+                  headerBgColor = Colors.lightBlueAccent;
                   break;
                 case 1:
                   contentBgColor = Colors.transparent;
-                  headerBgColor = const Color.fromARGB(255, 251, 236, 97);
+                  headerBgColor = Colors.red;
                   break;
                 case 2:
                   contentBgColor = Colors.transparent;
-                  headerBgColor = Colors.lightBlueAccent;
+                  headerBgColor = Colors.green;
                   break;
 
                 default:

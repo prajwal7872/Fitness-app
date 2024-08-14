@@ -129,22 +129,22 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 10),
-                                  SizedBox(
-                                    width: 80,
-                                    child: FloatingActionButton(
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 255, 72, 59),
-                                      onPressed: () {
-                                        context
-                                            .read<MealBloc>()
-                                            .add(RejectMealEvent());
-                                      },
-                                      child: const Text(
-                                        'Reject',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
+                                  // SizedBox(
+                                  //   width: 80,
+                                  //   child: FloatingActionButton(
+                                  //     backgroundColor: const Color.fromARGB(
+                                  //         255, 255, 72, 59),
+                                  //     onPressed: () {
+                                  //       context
+                                  //           .read<MealBloc>()
+                                  //           .add(RejectMealEvent());
+                                  //     },
+                                  //     child: const Text(
+                                  //       'Reject',
+                                  //       style: TextStyle(color: Colors.white),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             if (state.updateMessage.isNotEmpty)

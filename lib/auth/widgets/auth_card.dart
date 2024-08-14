@@ -1,24 +1,30 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
+import 'package:loginpage/userdetails/screens/userdetailspage.dart';
 
 class AuthCard extends StatelessWidget {
-  final GlobalKey<FormState> formKey;
-  final bool isLoading;
-  final bool isLogin;
-  final Function(String?) onSavedEmail;
-  final Function(String?) onSavedPassword;
-  final VoidCallback onSubmit;
-  final VoidCallback onToggleAuthMode;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  const AuthCard({
-    required this.formKey,
-    required this.isLoading,
-    required this.isLogin,
-    required this.onSavedEmail,
-    required this.onSavedPassword,
-    required this.onSubmit,
-    required this.onToggleAuthMode,
-    super.key,
-  });
+  AuthCard({super.key});
+
+  void _submit(BuildContext context) {
+    final isValid = _formKey.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+
+    _formKey.currentState!.save();
+    FocusScope.of(context).unfocus();
+
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    print('Email: $email');
+    print('Password: $password');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +34,12 @@ class AuthCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: formKey,
+            key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
+                  controller: _emailController,
                   decoration: const InputDecoration(
                     labelText: 'Email Address',
                   ),
@@ -45,12 +52,11 @@ class AuthCard extends StatelessWidget {
                         !value.contains('@')) {
                       return 'Please enter a valid email address.';
                     }
-
                     return null;
                   },
-                  onSaved: onSavedEmail,
                 ),
                 TextFormField(
+                  controller: _passwordController,
                   decoration: const InputDecoration(labelText: 'Password'),
                   obscureText: true,
                   validator: (value) {
@@ -59,26 +65,26 @@ class AuthCard extends StatelessWidget {
                     }
                     return null;
                   },
-                  onSaved: onSavedPassword,
                 ),
                 const SizedBox(height: 12),
-                if (isLoading) const CircularProgressIndicator(),
-                if (!isLoading)
-                  ElevatedButton(
-                    onPressed: onSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.primaryContainer,
-                    ),
-                    child: Text(isLogin ? 'Login' : 'Signup'),
+                ElevatedButton(
+                  onPressed: () => _submit(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
                   ),
-                if (!isLoading)
-                  TextButton(
-                    onPressed: onToggleAuthMode,
-                    child: Text(isLogin
-                        ? 'Create an account'
-                        : 'I already have an account'),
-                  ),
+                  child: const Text('Login'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const UserInputPage()),
+                    );
+                  },
+                  child: const Text('Create an account'),
+                ),
               ],
             ),
           ),

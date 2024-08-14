@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health/health.dart';
-import 'package:loginpage/auth/bloc/auth_bloc.dart';
+import 'package:loginpage/auth/Screens/auth_screen.dart';
 import 'package:loginpage/calorie/bloc/calorie_bloc.dart';
 import 'package:loginpage/calorie/bloc/calorie_event.dart';
 import 'package:loginpage/mealplan/Screens/meal_screen.dart';
@@ -12,6 +11,7 @@ import 'package:loginpage/mealplan/bloc/meal_bloc.dart';
 import 'package:loginpage/mealplan/bloc/meal_event.dart';
 import 'package:loginpage/sign_up/bloc/question_event.dart';
 import 'package:loginpage/sign_up/bloc/questionn_bloc.dart';
+import 'package:loginpage/userdetails/bloc/userdetails_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:loginpage/calorie/services/health_service.dart';
 
@@ -42,11 +42,11 @@ class MyApp extends StatelessWidget {
           create: (_) => QuestionBloc()..add(LoadQuestions()),
         ),
         BlocProvider(
-          create: (context) => AuthBloc(FirebaseAuth.instance),
-        ),
-        BlocProvider(
           create: (context) => MealBloc()..add(LoadStatusDataEvent()),
           child: const MealPlanScreen(),
+        ),
+        BlocProvider(
+          create: (_) => UserDetailsBloc(),
         )
       ],
       child: MaterialApp(
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const MealPlanScreen(),
+        home: const AuthScreen(),
       ),
     );
   }
