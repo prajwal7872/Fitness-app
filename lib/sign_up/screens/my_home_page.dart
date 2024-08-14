@@ -28,8 +28,6 @@ class _MyHomePageState extends State<MyHomePage> {
     storeSelectedAnswersInUser(
         updatedAnswers, state.questions, widget.userDetails);
 
-    print(widget.userDetails);
-
     final currentPage = _pageController.page!.toInt();
     final startIndex = currentPage * 3;
     final endIndex = (currentPage * 3 + 3).clamp(0, state.questions.length);
@@ -45,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (allQuestionsOnCurrentPageAnswered) {
       if (currentPage >= (state.questions.length / 3).ceil() - 1) {
         print(widget.userDetails);
-        Navigator.of(context).push(MaterialPageRoute(
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => const MealPlanScreen(),
         ));
       } else {

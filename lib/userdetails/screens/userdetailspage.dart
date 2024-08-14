@@ -94,7 +94,7 @@ class UserInputForm extends StatelessWidget {
             "date_of_birth": state.dateOfBirth,
             "questionnaire": []
           };
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
                 builder: (context) => MyHomePage(

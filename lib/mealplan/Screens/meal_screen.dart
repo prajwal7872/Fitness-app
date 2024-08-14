@@ -128,7 +128,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  // const SizedBox(width: 10),
                                   // SizedBox(
                                   //   width: 80,
                                   //   child: FloatingActionButton(
