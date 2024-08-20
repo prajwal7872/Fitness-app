@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:health/health.dart';
 import 'package:loginpage/features/accordion/domain/usecases/get_question.dart';
 import 'package:loginpage/features/accordion/domain/usecases/select_answer.dart';
+import 'package:loginpage/features/accordion/domain/usecases/update_current_page_index.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_bloc.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_event.dart';
 import 'package:loginpage/features/auth/Screens/auth_screen.dart';
@@ -26,18 +27,26 @@ void main() async {
 
   final getQuestions = GetQuestions();
   final selectAnswer = SelectAnswer();
+  final updateCurrentPageIndexusecase =
+      UpdateCurrentPageIndexUseCase(selectAnswer);
 
-  runApp(MyApp(getQuestions: getQuestions, selectAnswer: selectAnswer));
+  runApp(MyApp(
+    getQuestions: getQuestions,
+    selectAnswer: selectAnswer,
+    updateCurrentPageIndexUseCase: updateCurrentPageIndexusecase,
+  ));
 }
 
 class MyApp extends StatelessWidget {
   final GetQuestions getQuestions;
   final SelectAnswer selectAnswer;
+  final UpdateCurrentPageIndexUseCase updateCurrentPageIndexUseCase;
 
   const MyApp({
     super.key,
     required this.getQuestions,
     required this.selectAnswer,
+    required this.updateCurrentPageIndexUseCase,
   });
 
   @override
@@ -50,7 +59,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => QuestionBloc(
-              getQuestions: getQuestions, selectAnswer: selectAnswer)
+              getQuestions: getQuestions,
+              selectAnswer: selectAnswer,
+              updateCurrentPageIndexUseCase: updateCurrentPageIndexUseCase)
             ..add(LoadQuestions()),
         ),
         BlocProvider(
