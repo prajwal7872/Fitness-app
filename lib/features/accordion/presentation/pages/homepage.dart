@@ -2,13 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/features/accordion/domain/entites/question.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_bloc.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_event.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_state.dart';
+import 'package:loginpage/features/accordion/presentation/services/questionnaire_service.dart';
 import 'package:loginpage/features/accordion/presentation/widgets/accordion.dart';
+import 'package:loginpage/features/accordion/presentation/widgets/navigation_buttons.dart';
+import 'package:loginpage/features/accordion/presentation/widgets/timeline_tile.dart';
 import 'package:loginpage/features/mealplan/Screens/meal_screen.dart';
-import 'package:timeline_tile/timeline_tile.dart';
 
 class MyHomePage extends StatefulWidget {
   final Map<String, dynamic> userDetails;
@@ -25,7 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _handleAnswerSelection(BuildContext context, QuestionsLoaded state) {
     final updatedAnswers = Map<int, String?>.from(state.selectedAnswers);
 
-    storeSelectedAnswersInUser(
+    QuestionnaireService().storeSelectedAnswersInUser(
         updatedAnswers, state.questions, widget.userDetails);
 
     final currentPage = _pageController.page!.toInt();
@@ -69,30 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void storeSelectedAnswersInUser(Map<int, String?> answers,
-      List<Question> questions, Map<String, dynamic> userDetails) {
-    Map<String, dynamic> questionnaireData = {};
-
-    answers.forEach((questionId, answer) {
-      final question = questions.firstWhere(
-        (q) => q.id == questionId,
-        orElse: () => const Question(0, '', [], ''),
-      );
-      questionnaireData[question.shortname] = answer;
-    });
-    if (userDetails.containsKey("questionnaire") &&
-        userDetails["questionnaire"] is List) {
-      if (userDetails["questionnaire"].isNotEmpty) {
-        userDetails["questionnaire"]
-            [0] = {...userDetails["questionnaire"][0], ...questionnaireData};
-      } else {
-        userDetails["questionnaire"].add(questionnaireData);
-      }
-    } else {
-      // UserDetails["questionnaire"] = [questionnaireData];
-    }
-  }
-
   void _handlePreviousPage(BuildContext context, QuestionsLoaded state) {
     final currentPage = _pageController.page!.toInt();
 
@@ -130,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return const Center(child: CircularProgressIndicator());
             } else if (state is QuestionsLoaded) {
               final indexSet = state.pageIndexes;
-              final isLastPage = state.currentPageIndex >= 3;
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -151,36 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         (index) {
                           bool activeIndex = indexSet.contains(index + 1);
 
-                          return SizedBox(
-                            child: TimelineTile(
-                              axis: TimelineAxis.horizontal,
-                              alignment: TimelineAlign.center,
-                              isFirst: index == 0,
-                              isLast: (state.questions.length / 3).ceil() ==
-                                  index + 1,
-                              indicatorStyle: IndicatorStyle(
-                                drawGap: true,
-                                color: Colors.white,
-                                iconStyle: IconStyle(
-                                  fontSize: 22,
-                                  iconData: activeIndex
-                                      ? Icons.check_circle
-                                      : Icons.circle,
-                                  color:
-                                      activeIndex ? Colors.green : Colors.black,
-                                ),
-                              ),
-                              beforeLineStyle: LineStyle(
-                                color:
-                                    activeIndex ? Colors.green : Colors.black,
-                                thickness: 3,
-                              ),
-                              afterLineStyle: LineStyle(
-                                color:
-                                    activeIndex ? Colors.green : Colors.black,
-                                thickness: 3,
-                              ),
-                            ),
+                          return TimelineIndicator(
+                            index: index,
+                            isActive: activeIndex,
+                            isFirst: index == 0,
+                            isLast: (state.questions.length / 3).ceil() ==
+                                index + 1,
                           );
                         },
                       ),
@@ -220,47 +173,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 80,
-                          child: FloatingActionButton(
-                            heroTag: 'previousButton',
-                            backgroundColor: state.currentPageIndex > 0
-                                ? Colors.green
-                                : Colors.grey,
-                            onPressed: () {
-                              _handlePreviousPage(context, state);
-                            },
-                            child: const Text(
-                              'Previous',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 80,
-                          child: FloatingActionButton(
-                            heroTag: 'nextButton',
-                            backgroundColor: state.allQuestionsAnswered
-                                ? Colors.green
-                                : Colors.grey,
-                            onPressed: () {
-                              _handleAnswerSelection(context, state);
-                            },
-                            child: isLastPage
-                                ? const Text(
-                                    'Submit',
-                                    style: TextStyle(color: Colors.white),
-                                  )
-                                : const Text(
-                                    'Next',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                          ),
-                        ),
-                      ],
+                    child: NavigationButtons(
+                      pageController: _pageController,
+                      handlePreviousPage: _handlePreviousPage,
+                      handleAnswerSelection: _handleAnswerSelection,
                     ),
                   ),
                 ],
