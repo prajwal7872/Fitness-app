@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_bloc.dart';
@@ -107,7 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
               return const Center(child: CircularProgressIndicator());
             } else if (state is QuestionsLoaded) {
               final indexSet = state.pageIndexes;
-
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -147,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPageChanged: (index) {
                         context
                             .read<QuestionBloc>()
-                            .add(ChangeOpenSection(index = 0));
+                            .add(ChangeOpenSection(index));
                       },
                       itemBuilder: (context, index) {
                         final startIndex = index * 3;

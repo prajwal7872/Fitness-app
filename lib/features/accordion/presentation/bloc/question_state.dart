@@ -49,3 +49,5 @@ class QuestionsError extends QuestionState {
   @override
   List<Object> get props => [message];
 }
+
+class NavigationTriggered extends QuestionState {}
