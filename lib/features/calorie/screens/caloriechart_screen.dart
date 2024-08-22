@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
-import 'package:loginpage/features/mealplan/Screens/meal_screen.dart';
+import 'package:loginpage/features/meal/presentation/pages/meal_screen.dart';
 
 class CalorieChart extends StatefulWidget {
   final Map<String, double> weeklyCalorieData;

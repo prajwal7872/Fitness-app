@@ -1,21 +1,26 @@
 // ignore_for_file: avoid_print
-
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:health/health.dart';
-import 'package:loginpage/features/mealplan/Services/permission.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_event.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_state.dart';
+import 'package:loginpage/features/meal/domain/usecases/accept_meal.dart';
+import 'package:loginpage/features/meal/domain/usecases/reject_meal.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_event.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_state.dart';
+import 'package:loginpage/features/meal/presentation/services/permission.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MealBloc extends Bloc<MealEvent, MealState> {
+  final AcceptMealUseCase acceptMealUseCase;
+  final RejectMealUseCase rejectMealUseCase;
+
   Timer? _timer;
   Timer? _showButtonTimer;
   Timer? _countdownTimer;
 
-  MealBloc() : super(MealInitial()) {
+  MealBloc({
+    required this.acceptMealUseCase,
+    required this.rejectMealUseCase,
+  }) : super(MealInitial()) {
     on<LoadStatusDataEvent>((event, emit) {
       final List<Map<String, dynamic>> statusData = [
         {
@@ -87,7 +92,6 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       _startCountdownTimer();
       _scheduleMealNotifications(statusData);
     });
-
     on<AcceptMealEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       final acceptedMeals = List<bool>.from(state.acceptedMeals);
@@ -99,10 +103,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           ? state.currentMealIndex + 1
           : state.currentMealIndex;
 
-      if (await _requestHealthPermission()) {
-        await _writeMealDataToGoogleFit(
-            state.statusData[state.currentMealIndex]);
-      }
+      await acceptMealUseCase.execute(state.statusData[state.currentMealIndex]);
 
       String updateMessage = '';
       if (nextMealIndex == state.statusData.length - 1) {
@@ -143,29 +144,8 @@ class MealBloc extends Bloc<MealEvent, MealState> {
 
     on<RejectMealEvent>((event, emit) {
       final state = this.state as MealPlanLoaded;
-      final rejectedMeals = List<bool>.from(state.rejectedMeals);
-
-      if (state.currentMealIndex < rejectedMeals.length) {
-        rejectedMeals[state.currentMealIndex] = true;
-      }
-      final nextMealIndex = state.currentMealIndex < state.statusData.length - 1
-          ? state.currentMealIndex + 1
-          : state.currentMealIndex;
-
-      String updateMessage = '';
-
-      emit(MealPlanLoaded(
-          state.statusData,
-          state.acceptedMeals,
-          rejectedMeals,
-          nextMealIndex,
-          true,
-          nextMealIndex,
-          -1,
-          0,
-          updateMessage,
-          state.remainingTime));
-
+      final newState = rejectMealUseCase.rejectMeal(state);
+      emit(newState);
       _startCountdownTimer();
     });
 
@@ -298,65 +278,6 @@ class MealBloc extends Bloc<MealEvent, MealState> {
     ];
 
     return mealTimes[mealIndex];
-  }
-
-  Future<bool> _requestHealthPermission() async {
-    final status = await Permission.activityRecognition.request();
-    if (status.isGranted) {
-      return true;
-    } else {
-      print("Health write permission denied");
-      return false;
-    }
-  }
-
-  Future<void> _writeMealDataToGoogleFit(Map<String, dynamic> mealData) async {
-    final Health health = Health();
-
-    final DateTime now = DateTime.now();
-    final DateTime startTime = DateTime(now.year, now.month, now.day, now.hour);
-    final DateTime endTime = startTime.add(const Duration(seconds: 1));
-
-    final double fats =
-        double.parse(mealData['nutritionalPlan']['fats'].replaceAll('gm', ''));
-    final double carbs =
-        double.parse(mealData['nutritionalPlan']['carbs'].replaceAll('gm', ''));
-    final double protein = double.parse(
-        mealData['nutritionalPlan']['protein'].replaceAll('gm', ''));
-
-    bool success = false;
-    MealType mealType;
-
-    switch (mealData['statusLabel']) {
-      case 'Breakfast':
-        mealType = MealType.BREAKFAST;
-        break;
-      case 'Lunch':
-        mealType = MealType.LUNCH;
-        break;
-      case 'Snacks':
-        mealType = MealType.SNACK;
-        break;
-      case 'Dinner':
-        mealType = MealType.DINNER;
-        break;
-      default:
-        mealType = MealType.UNKNOWN;
-    }
-
-    success = await health.writeMeal(
-      mealType: mealType,
-      startTime: startTime,
-      endTime: endTime,
-      caloriesConsumed: fats * 9 + carbs * 4 + protein * 4,
-      name: mealData['statusLabel'],
-    );
-
-    if (success) {
-      print("Successfully wrote meal data to Google Fit");
-    } else {
-      print("Failed to write meal data to Google Fit");
-    }
   }
 
   void _startAutoRejectTimer() {

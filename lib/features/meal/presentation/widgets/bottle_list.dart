@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_bloc.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_event.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_state.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_bloc.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_event.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_state.dart';
 
 class BottleList extends StatefulWidget {
   const BottleList({super.key});
