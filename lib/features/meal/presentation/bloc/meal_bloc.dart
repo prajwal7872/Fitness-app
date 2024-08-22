@@ -103,7 +103,6 @@ class MealBloc extends Bloc<MealEvent, MealState> {
           ? state.currentMealIndex + 1
           : state.currentMealIndex;
 
-      // Use the extracted use case to handle the meal acceptance logic
       await acceptMealUseCase.execute(state.statusData[state.currentMealIndex]);
 
       String updateMessage = '';

@@ -63,6 +63,7 @@ class UserInputForm extends StatelessWidget {
 
     if (picked != null) {
       _dateController.text = picked.toString().split(" ")[0];
+      // ignore: use_build_context_synchronously
       context
           .read<UserDetailsBloc>()
           .add(DateOfBirthChanged(_dateController.text));

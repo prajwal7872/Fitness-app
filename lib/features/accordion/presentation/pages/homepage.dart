@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPageChanged: (index) {
                         context
                             .read<QuestionBloc>()
-                            .add(ChangeOpenSection(index));
+                            .add(ChangeOpenSection(index = 0));
                       },
                       itemBuilder: (context, index) {
                         final startIndex = index * 3;

@@ -35,7 +35,7 @@ void main() async {
  final acceptMealUseCase = AcceptMealUseCase(health);
   final rejectMealUseCase = RejectMealUseCase();
 
-  runApp(MyApp(
+  runApp(MyAppp(
     getQuestions: getQuestions,
     selectAnswer: selectAnswer,
     updateCurrentPageIndexUseCase: updateCurrentPageIndexUseCase,
@@ -44,14 +44,14 @@ void main() async {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyAppp extends StatelessWidget {
   final GetQuestions getQuestions;
   final SelectAnswer selectAnswer;
   final UpdateCurrentPageIndexUseCase updateCurrentPageIndexUseCase;
   final AcceptMealUseCase acceptMealUseCase;
   final RejectMealUseCase rejectMealUseCase;
 
-  const MyApp({
+  const MyAppp({
     super.key,
     required this.getQuestions,
     required this.selectAnswer,
