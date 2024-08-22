@@ -7,7 +7,7 @@ import 'package:loginpage/features/accordion/presentation/services/questionnaire
 import 'package:loginpage/features/accordion/presentation/widgets/accordion.dart';
 import 'package:loginpage/features/accordion/presentation/widgets/navigation_buttons.dart';
 import 'package:loginpage/features/accordion/presentation/widgets/timeline_tile.dart';
-import 'package:loginpage/features/mealplan/Screens/meal_screen.dart';
+import 'package:loginpage/features/meal/presentation/pages/meal_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   final Map<String, dynamic> userDetails;
@@ -124,7 +124,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         (state.questions.length / 3).ceil(),
                         (index) {
                           bool activeIndex = indexSet.contains(index + 1);
-
                           return TimelineIndicator(
                             index: index,
                             isActive: activeIndex,

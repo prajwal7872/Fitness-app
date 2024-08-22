@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_bloc.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_event.dart';
-import 'package:loginpage/features/mealplan/bloc/meal_state.dart';
-import 'package:loginpage/features/mealplan/widgets/bottle_list.dart';
-import 'package:loginpage/features/mealplan/widgets/lunch_countdown.dart';
-import 'package:loginpage/features/mealplan/widgets/meal_item.dart';
-import 'package:loginpage/features/mealplan/widgets/nutrition_table.dart';
-import 'package:loginpage/features/mealplan/widgets/timeline.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_bloc.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_event.dart';
+import 'package:loginpage/features/meal/presentation/bloc/meal_state.dart';
+import 'package:loginpage/features/meal/presentation/widgets/bottle_list.dart';
+import 'package:loginpage/features/meal/presentation/widgets/lunch_countdown.dart';
+import 'package:loginpage/features/meal/presentation/widgets/meal_item.dart';
+import 'package:loginpage/features/meal/presentation/widgets/nutrition_table.dart';
+import 'package:loginpage/features/meal/presentation/widgets/timeline.dart';
 
 class MealPlanScreen extends StatefulWidget {
   const MealPlanScreen({super.key});
