@@ -1,7 +1,8 @@
 // ignore_for_file: avoid_print
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/features/accordion/domain/usecases/get_question.dart';
-import 'package:loginpage/features/accordion/domain/usecases/update_current_page_index.dart';
+import 'package:loginpage/features/accordion/domain/usecases/post_user_details.dart';
+import 'package:loginpage/features/accordion/domain/usecases/validate_pageanswer.dart';
 import '../../domain/usecases/select_answer.dart';
 import 'question_event.dart';
 import 'question_state.dart';
@@ -9,18 +10,21 @@ import 'question_state.dart';
 class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   final GetQuestions getQuestions;
   final SelectAnswer selectAnswer;
-  final UpdateCurrentPageIndexUseCase updateCurrentPageIndexUseCase;
+  final ValidatePageAnswers validatePageAnswers;
+  final PostUserDetails postUserDetails;
 
   QuestionBloc({
     required this.getQuestions,
     required this.selectAnswer,
-    required this.updateCurrentPageIndexUseCase,
+    required this.validatePageAnswers,
+    required this.postUserDetails,
   }) : super(QuestionsLoading()) {
     on<LoadQuestions>(_onLoadQuestions);
     on<AnswerSelected>(_onAnswerSelected);
     on<ChangeOpenSection>(_onChangeOpenSection);
     on<SetPageIndex>(_onSetPageIndex);
-    on<UpdateCurrentPageIndex>(_onUpdateCurrentPageIndex);
+    on<ValidatePageAnswersEvent>(_onValidatePageAnswers);
+    on<PostUserDetailsEvent>(_onPostUserDetails);
   }
 
   void _onLoadQuestions(LoadQuestions event, Emitter<QuestionState> emit) {
@@ -86,11 +90,11 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
     }
   }
 
-  void _onUpdateCurrentPageIndex(
-      UpdateCurrentPageIndex event, Emitter<QuestionState> emit) {
+  void _onValidatePageAnswers(
+      ValidatePageAnswersEvent event, Emitter<QuestionState> emit) {
     if (state is QuestionsLoaded) {
       final currentState = state as QuestionsLoaded;
-      final allQuestionsAnswered = updateCurrentPageIndexUseCase(
+      final allQuestionsAnswered = validatePageAnswers(
         currentState.selectedAnswers,
         currentState.questions,
         event.currentPageIndex,
@@ -105,6 +109,20 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         event.currentPageIndex,
         allQuestionsAnswered,
       ));
+    }
+  }
+
+  void _onPostUserDetails(
+      PostUserDetailsEvent event, Emitter<QuestionState> emit) async {
+    try {
+      final result = await postUserDetails.call(event.userDetails);
+      if (result) {
+        emit(const UserDetailsPosted('User details posted successfully'));
+      } else {
+        emit(const QuestionsError('Failed to post user details'));
+      }
+    } catch (e) {
+      emit(QuestionsError('Failed to post user details: ${e.toString()}'));
     }
   }
 }

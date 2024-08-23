@@ -50,4 +50,11 @@ class QuestionsError extends QuestionState {
   List<Object> get props => [message];
 }
 
-class NavigationTriggered extends QuestionState {}
+class UserDetailsPosted extends QuestionState {
+  final String message;
+
+  const UserDetailsPosted(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
