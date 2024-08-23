@@ -1,10 +1,10 @@
 import 'package:loginpage/features/accordion/domain/entites/question.dart';
 import 'package:loginpage/features/accordion/domain/usecases/select_answer.dart';
 
-class UpdateCurrentPageIndexUseCase {
+class ValidatePageAnswers {
   final SelectAnswer selectAnswer;
 
-  UpdateCurrentPageIndexUseCase(this.selectAnswer);
+  ValidatePageAnswers(this.selectAnswer);
 
   bool call(Map<int, String?> selectedAnswers, List<Question> questions,
       int currentPageIndex) {
