@@ -60,7 +60,7 @@ class QuestionnaireNavigationHelper {
         );
 
         context.read<QuestionBloc>().add(PostUserDetailsEvent(userDetails));
-        print(userDetails);
+
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => const MealPlanScreen(),
         ));
