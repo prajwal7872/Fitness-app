@@ -115,14 +115,10 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   void _onPostUserDetails(
       PostUserDetailsEvent event, Emitter<QuestionState> emit) async {
     try {
-      final result = await postUserDetails.call(event.userDetails);
-      if (result) {
-        emit(const UserDetailsPosted('User details posted successfully'));
-      } else {
-        emit(const QuestionsError('Failed to post user details'));
-      }
+      await postUserDetails.call(event.userDetails);
+      emit(const UserDetailsPosted('User details posted successfully'));
     } catch (e) {
-      emit(QuestionsError('Failed to post user details: ${e.toString()}'));
+      emit(const QuestionsError('Failed to post user details'));
     }
   }
 }
