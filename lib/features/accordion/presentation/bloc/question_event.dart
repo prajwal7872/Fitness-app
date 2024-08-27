@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:loginpage/features/accordion/domain/entites/userdetails.dart';
 
 abstract class QuestionEvent extends Equatable {
   const QuestionEvent();
@@ -44,4 +45,10 @@ class ValidatePageAnswersEvent extends QuestionEvent {
 
   @override
   List<Object> get props => [currentPageIndex];
+}
+
+class PostUserEvent extends QuestionEvent {
+  final User user;
+
+  const PostUserEvent(this.user);
 }

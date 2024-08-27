@@ -49,6 +49,7 @@ dependencies:
   timezone: ^0.9.4
   intl_phone_field: ^3.2.0
   http: ^1.2.2
+  get_it: ^7.7.0
   
 dev_dependencies:
   flutter_test:

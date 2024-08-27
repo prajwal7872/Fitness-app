@@ -1,3 +1,21 @@
+class User {
+  final String email;
+  final String password;
+  final String fullName;
+  final String contactNo;
+  final DateTime dateOfBirth;
+  final Questionnaire questionnaire;
+
+  User({
+    required this.email,
+    required this.password,
+    required this.fullName,
+    required this.contactNo,
+    required this.dateOfBirth,
+    required this.questionnaire,
+  });
+}
+
 class Questionnaire {
   final String chronicHealth;
   final String dietPlan;
@@ -25,23 +43,5 @@ class Questionnaire {
     required this.gender,
     required this.progressFeedback,
     required this.healthCondition,
-  });
-}
-
-class User {
-  final String email;
-  final String password;
-  final String fullName;
-  final String contactNo;
-  final DateTime dateOfBirth;
-  final List<Questionnaire> questionnaire;
-
-  User({
-    required this.email,
-    required this.password,
-    required this.fullName,
-    required this.contactNo,
-    required this.dateOfBirth,
-    required this.questionnaire,
   });
 }

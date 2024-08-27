@@ -49,3 +49,11 @@ class QuestionsError extends QuestionState {
   @override
   List<Object> get props => [message];
 }
+
+class UserSuccess extends QuestionState {}
+
+class UserFailure extends QuestionState {
+  final String message;
+
+  const UserFailure(this.message);
+}
