@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:loginpage/features/accordion/domain/usecases/get_question.dart';
-import 'package:loginpage/features/accordion/domain/usecases/post_user_details.dart';
 import 'package:loginpage/features/accordion/domain/usecases/validate_pageanswer.dart';
 import '../../domain/usecases/select_answer.dart';
 import 'question_event.dart';
@@ -11,20 +10,17 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
   final GetQuestions getQuestions;
   final SelectAnswer selectAnswer;
   final ValidatePageAnswers validatePageAnswers;
-  final PostUserDetails postUserDetails;
 
   QuestionBloc({
     required this.getQuestions,
     required this.selectAnswer,
     required this.validatePageAnswers,
-    required this.postUserDetails,
   }) : super(QuestionsLoading()) {
     on<LoadQuestions>(_onLoadQuestions);
     on<AnswerSelected>(_onAnswerSelected);
     on<ChangeOpenSection>(_onChangeOpenSection);
     on<SetPageIndex>(_onSetPageIndex);
     on<ValidatePageAnswersEvent>(_onValidatePageAnswers);
-    on<PostUserDetailsEvent>(_onPostUserDetails);
   }
 
   void _onLoadQuestions(LoadQuestions event, Emitter<QuestionState> emit) {
@@ -109,16 +105,6 @@ class QuestionBloc extends Bloc<QuestionEvent, QuestionState> {
         event.currentPageIndex,
         allQuestionsAnswered,
       ));
-    }
-  }
-
-  void _onPostUserDetails(
-      PostUserDetailsEvent event, Emitter<QuestionState> emit) async {
-    try {
-      await postUserDetails.call(event.userDetails);
-      emit(const UserDetailsPosted('User details posted successfully'));
-    } catch (e) {
-      emit(const QuestionsError('Failed to post user details'));
     }
   }
 }

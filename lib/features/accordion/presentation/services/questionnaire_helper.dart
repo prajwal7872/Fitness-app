@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/features/accordion/data/model/user_details_mode.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_bloc.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_event.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_state.dart';
@@ -35,32 +34,7 @@ class QuestionnaireNavigationHelper {
     }
     if (allQuestionsOnCurrentPageAnswered) {
       if (currentPage >= (state.questions.length / 3).ceil() - 1) {
-        final userDetails = UserDetails(
-          email: 'email',
-          password: 'password',
-          fullName: 'fullname',
-          contactNo: 'contactNo',
-          dateOfBirth: 'dateOfBirth',
-          questionnaire: state.questions
-              .map((q) => Questionnaire(
-                    chronicHealth: updatedAnswers[1] ?? '',
-                    dietPlan: updatedAnswers[2] ?? '',
-                    fitnessGoal: updatedAnswers[3] ?? '',
-                    physicalActivities: updatedAnswers[4] ?? '',
-                    occupation: updatedAnswers[5] ?? '',
-                    sleep: updatedAnswers[6] ?? '',
-                    fitnessLevel: updatedAnswers[7] ?? '',
-                    weight: updatedAnswers[8] ?? '',
-                    height: updatedAnswers[9] ?? '',
-                    gender: updatedAnswers[10] ?? '',
-                    progressFeedback: updatedAnswers[11] ?? '',
-                    healthCondition: updatedAnswers[12] ?? '',
-                  ))
-              .toList(),
-        );
-
-        context.read<QuestionBloc>().add(PostUserDetailsEvent(userDetails));
-
+        print(userDetails);
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => const MealPlanScreen(),
         ));
