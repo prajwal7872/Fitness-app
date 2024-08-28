@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:loginpage/features/accordion/data/repositories/userdetails_repo_impl.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_bloc.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_event.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_state.dart';
@@ -7,6 +8,10 @@ import 'package:loginpage/features/accordion/presentation/services/questionnaire
 import 'package:loginpage/features/accordion/presentation/widgets/accordion.dart';
 import 'package:loginpage/features/accordion/presentation/widgets/navigation_buttons.dart';
 import 'package:loginpage/features/accordion/presentation/widgets/timeline_tile.dart';
+import 'package:loginpage/features/accordion/domain/usecases/post_userdetails.dart';
+
+import 'package:loginpage/features/accordion/data/datasources/userdetails_remote_data_sources.dart';
+import 'package:http/http.dart' as http;
 
 class MyHomePage extends StatefulWidget {
   final Map<String, dynamic> userDetails;
@@ -24,9 +29,15 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    final userDataSource = UserRemoteDataSource(client: http.Client());
+    final userRepository = UserRepositoryImpl(remoteDataSource: userDataSource);
+    final postUserDataUseCase = PostUserDataUseCase(repository: userRepository);
+
     _navigationHelper = QuestionnaireNavigationHelper(
       pageController: _pageController,
       userDetails: widget.userDetails,
+      postUserDataUseCase: postUserDataUseCase,
     );
   }
 

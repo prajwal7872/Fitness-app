@@ -1,12 +1,12 @@
-class UserDetails {
+class User {
   final String email;
   final String password;
   final String fullName;
   final String contactNo;
-  final String dateOfBirth;
-  final List<Questionnaire> questionnaire;
+  final DateTime dateOfBirth;
+  final Questionnaire questionnaire;
 
-  UserDetails({
+  User({
     required this.email,
     required this.password,
     required this.fullName,
@@ -14,17 +14,6 @@ class UserDetails {
     required this.dateOfBirth,
     required this.questionnaire,
   });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'email': email,
-      'password': password,
-      'full_name': fullName,
-      'contact_no': contactNo,
-      'date_of_birth': dateOfBirth,
-      'questionnaire': questionnaire.map((q) => q.toJson()).toList(),
-    };
-  }
 }
 
 class Questionnaire {
@@ -55,21 +44,4 @@ class Questionnaire {
     required this.progressFeedback,
     required this.healthCondition,
   });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'chronic_health': chronicHealth,
-      'diet_plan': dietPlan,
-      'fitness_goal': fitnessGoal,
-      'physical_activities': physicalActivities,
-      'occupation': occupation,
-      'sleep': sleep,
-      'fitnesslevel': fitnessLevel,
-      'weight': weight,
-      'height': height,
-      'gender': gender,
-      'progress_feedback': progressFeedback,
-      'health_condition': healthCondition,
-    };
-  }
 }

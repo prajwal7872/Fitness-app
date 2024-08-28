@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:loginpage/features/accordion/data/model/user_details_mode.dart';
+import 'package:loginpage/features/accordion/domain/entites/userdetails.dart';
 
 abstract class QuestionEvent extends Equatable {
   const QuestionEvent();
@@ -47,11 +47,8 @@ class ValidatePageAnswersEvent extends QuestionEvent {
   List<Object> get props => [currentPageIndex];
 }
 
-class PostUserDetailsEvent extends QuestionEvent {
-  final UserDetails userDetails;
+class PostUserEvent extends QuestionEvent {
+  final User user;
 
-  const PostUserDetailsEvent(this.userDetails);
-
-  @override
-  List<Object> get props => [userDetails];
+  const PostUserEvent(this.user);
 }
