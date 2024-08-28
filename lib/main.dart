@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:health/health.dart';
 import 'package:loginpage/features/accordion/domain/usecases/get_question.dart';
 import 'package:loginpage/features/accordion/domain/usecases/post_userdetails.dart';
 import 'package:loginpage/features/accordion/domain/usecases/select_answer.dart';
-import 'package:loginpage/features/accordion/domain/usecases/validate_pageanswer.dart';
+import 'package:loginpage/features/auth/Screens/auth_screen.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_bloc.dart';
 import 'package:loginpage/features/accordion/presentation/bloc/question_event.dart';
-import 'package:loginpage/features/auth/Screens/auth_screen.dart';
 import 'package:loginpage/features/calorie/bloc/calorie_bloc.dart';
 import 'package:loginpage/features/calorie/bloc/calorie_event.dart';
 import 'package:loginpage/features/calorie/services/health_service.dart';
@@ -19,48 +17,24 @@ import 'package:loginpage/features/meal/presentation/services/permission.dart';
 import 'package:loginpage/features/userdetails/bloc/userdetails_bloc.dart';
 import 'package:loginpage/service_locator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:health/health.dart';
+import 'features/accordion/domain/usecases/validate_pageanswer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await init();
-
   await Health().configure(useHealthConnectIfAvailable: true);
   await Permission.activityRecognition.request();
   await Permission.location.request();
-  await HealthService().fetchWeeklyCalorieData();
+  await sl<HealthService>().fetchWeeklyCalorieData();
   await NotificationHelper.initializeNotifications();
   await Permission.notification.request();
-  final health = Health();
-  final getQuestions = GetQuestions();
-  final selectAnswer = SelectAnswer();
-  final validatePageAnswers = ValidatePageAnswers(selectAnswer);
-  final acceptMealUseCase = AcceptMealUseCase(health);
-  final rejectMealUseCase = RejectMealUseCase();
 
-  runApp(MyAppp(
-    getQuestions: getQuestions,
-    selectAnswer: selectAnswer,
-    validatePageAnswers: validatePageAnswers,
-    acceptMealUseCase: acceptMealUseCase,
-    rejectMealUseCase: rejectMealUseCase,
-  ));
+  runApp(const MyAppp());
 }
 
 class MyAppp extends StatelessWidget {
-  final GetQuestions getQuestions;
-  final SelectAnswer selectAnswer;
-  final ValidatePageAnswers validatePageAnswers;
-  final AcceptMealUseCase acceptMealUseCase;
-  final RejectMealUseCase rejectMealUseCase;
-  const MyAppp({
-    super.key,
-    required this.getQuestions,
-    required this.selectAnswer,
-    required this.validatePageAnswers,
-    required this.acceptMealUseCase,
-    required this.rejectMealUseCase,
-  });
+  const MyAppp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -72,16 +46,16 @@ class MyAppp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => QuestionBloc(
-              getQuestions: getQuestions,
-              selectAnswer: selectAnswer,
-              validatePageAnswers: validatePageAnswers,
+              getQuestions: sl<GetQuestions>(),
+              selectAnswer: sl<SelectAnswer>(),
+              validatePageAnswers: sl<ValidatePageAnswers>(),
               postUserDataUseCase: sl<PostUserDataUseCase>())
             ..add(LoadQuestions()),
         ),
         BlocProvider(
           create: (context) => MealBloc(
-            acceptMealUseCase: acceptMealUseCase,
-            rejectMealUseCase: rejectMealUseCase,
+            acceptMealUseCase: sl<AcceptMealUseCase>(),
+            rejectMealUseCase: sl<RejectMealUseCase>(),
           )..add(LoadStatusDataEvent()),
         ),
         BlocProvider(

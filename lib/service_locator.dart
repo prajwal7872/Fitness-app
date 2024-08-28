@@ -2,13 +2,24 @@ import 'package:get_it/get_it.dart';
 import 'package:loginpage/features/accordion/data/datasources/userdetails_remote_data_sources.dart';
 import 'package:loginpage/features/accordion/data/repositories/userdetails_repo_impl.dart';
 import 'package:loginpage/features/accordion/domain/repositories/userdetails_repository.dart';
-
+import 'package:loginpage/features/accordion/domain/usecases/get_question.dart';
 import 'package:loginpage/features/accordion/domain/usecases/post_userdetails.dart';
+import 'package:loginpage/features/accordion/domain/usecases/select_answer.dart';
+import 'package:loginpage/features/accordion/domain/usecases/validate_pageanswer.dart';
+import 'package:loginpage/features/meal/domain/usecases/accept_meal.dart';
+import 'package:loginpage/features/meal/domain/usecases/reject_meal.dart';
+import 'package:loginpage/features/calorie/services/health_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:health/health.dart';
 
-final sl = GetIt.I;
+final sl = GetIt.I; // sl == Service Locator
 
 Future<void> init() async {
+  // ! External dependencies
+  sl.registerFactory(() => http.Client());
+  sl.registerFactory(() => Health());
+  sl.registerFactory(() => HealthService());
+
   // ! Data Layer
   sl.registerFactory<UserRemoteDataSource>(
       () => UserRemoteDataSource(client: sl()));
@@ -17,7 +28,9 @@ Future<void> init() async {
 
   // ! Domain Layer
   sl.registerFactory(() => PostUserDataUseCase(repository: sl()));
-
-  // ! External
-  sl.registerFactory(() => http.Client());
+  sl.registerFactory(() => GetQuestions());
+  sl.registerFactory(() => SelectAnswer());
+  sl.registerFactory(() => ValidatePageAnswers(sl()));
+  sl.registerFactory(() => AcceptMealUseCase(sl()));
+  sl.registerFactory(() => RejectMealUseCase());
 }
