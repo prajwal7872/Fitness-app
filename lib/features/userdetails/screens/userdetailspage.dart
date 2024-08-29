@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:loginpage/features/accordion/presentation/pages/homepage.dart';
+import 'package:loginpage/features/Signup/presentation/pages/homepage.dart';
 import 'package:loginpage/features/userdetails/bloc/userdetails_bloc.dart';
 import 'package:loginpage/features/userdetails/bloc/userdetails_event.dart';
 import 'package:loginpage/features/userdetails/bloc/userdetails_state.dart';

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/features/accordion/domain/usecases/get_question.dart';
-import 'package:loginpage/features/accordion/domain/usecases/post_userdetails.dart';
-import 'package:loginpage/features/accordion/domain/usecases/select_answer.dart';
-import 'package:loginpage/features/auth/Screens/auth_screen.dart';
-import 'package:loginpage/features/accordion/presentation/bloc/question_bloc.dart';
-import 'package:loginpage/features/accordion/presentation/bloc/question_event.dart';
+import 'package:loginpage/features/Signup/domain/usecases/get_question.dart';
+import 'package:loginpage/features/Signup/domain/usecases/post_userdetails.dart';
+import 'package:loginpage/features/Signup/domain/usecases/select_answer.dart';
+import 'package:loginpage/features/Login/Screens/auth_screen.dart';
+import 'package:loginpage/features/Signup/presentation/bloc/question_bloc.dart';
+import 'package:loginpage/features/Signup/presentation/bloc/question_event.dart';
 import 'package:loginpage/features/calorie/bloc/calorie_bloc.dart';
 import 'package:loginpage/features/calorie/bloc/calorie_event.dart';
 import 'package:loginpage/features/calorie/services/health_service.dart';
@@ -18,7 +18,7 @@ import 'package:loginpage/features/userdetails/bloc/userdetails_bloc.dart';
 import 'package:loginpage/service_locator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:health/health.dart';
-import 'features/accordion/domain/usecases/validate_pageanswer.dart';
+import 'features/Signup/domain/usecases/validate_pageanswer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
