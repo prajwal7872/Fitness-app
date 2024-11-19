@@ -6,24 +6,28 @@ import 'package:loginpage/features/Signup/domain/usecases/get_question.dart';
 import 'package:loginpage/features/Signup/domain/usecases/post_userdetails.dart';
 import 'package:loginpage/features/Signup/domain/usecases/select_answer.dart';
 import 'package:loginpage/features/Signup/domain/usecases/validate_pageanswer.dart';
+
 import 'package:loginpage/features/meal/domain/usecases/accept_meal.dart';
 import 'package:loginpage/features/meal/domain/usecases/reject_meal.dart';
 import 'package:loginpage/features/calorie/services/health_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:health/health.dart';
 
-final sl = GetIt.I;
+final sl = GetIt.I; // sl == Service Locator
 
 Future<void> init() async {
+  // ! External dependencies
   sl.registerFactory(() => http.Client());
   sl.registerFactory(() => Health());
   sl.registerFactory(() => HealthService());
 
+  // ! Data Layer
   sl.registerFactory<UserRemoteDataSource>(
       () => UserRemoteDataSource(client: sl()));
   sl.registerFactory<UserRepository>(
       () => UserRepositoryImpl(remoteDataSource: sl()));
 
+  // ! Domain Layer
   sl.registerFactory(() => PostUserDataUseCase(repository: sl()));
   sl.registerFactory(() => GetQuestions());
   sl.registerFactory(() => SelectAnswer());
