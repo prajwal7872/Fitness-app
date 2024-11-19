@@ -63,7 +63,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                       Text(
                         'Meal plan for Moses!',
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                            fontSize: 25, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         '(2500 Calorie today)',
