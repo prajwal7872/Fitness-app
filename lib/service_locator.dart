@@ -6,7 +6,6 @@ import 'package:loginpage/features/Signup/domain/usecases/get_question.dart';
 import 'package:loginpage/features/Signup/domain/usecases/post_userdetails.dart';
 import 'package:loginpage/features/Signup/domain/usecases/select_answer.dart';
 import 'package:loginpage/features/Signup/domain/usecases/validate_pageanswer.dart';
-
 import 'package:loginpage/features/meal/domain/usecases/accept_meal.dart';
 import 'package:loginpage/features/meal/domain/usecases/reject_meal.dart';
 import 'package:loginpage/features/calorie/services/health_service.dart';

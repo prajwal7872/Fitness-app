@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loginpage/features/Signup/domain/entites/userdetails.dart';
+// import 'package:loginpage/features/Signup/domain/entites/userdetails.dart';
 import 'package:loginpage/features/Signup/domain/usecases/post_userdetails.dart';
 import 'package:loginpage/features/Signup/presentation/bloc/question_bloc.dart';
 import 'package:loginpage/features/Signup/presentation/bloc/question_event.dart';
@@ -42,31 +42,31 @@ class QuestionnaireNavigationHelper {
       if (currentPage >= (state.questions.length / 3).ceil() - 1) {
         print(userDetails);
 
-        context.read<QuestionBloc>().add(PostUserEvent(User(
-              email: userDetails['email'],
-              password: userDetails['password'],
-              fullName: userDetails['full_name'],
-              contactNo: userDetails['contact_no'],
-              dateOfBirth: userDetails['date_of_birth'],
-              questionnaire: Questionnaire(
-                chronicHealth: userDetails['questionnaire'][0]
-                    ['chronic_health'],
-                dietPlan: userDetails['questionnaire'][0]['diet_plan'],
-                fitnessGoal: userDetails['questionnaire'][0]['fitness_goal'],
-                physicalActivities: userDetails['questionnaire'][0]
-                    ['physical_activities'],
-                occupation: userDetails['questionnaire'][0]['occupation'],
-                sleep: userDetails['questionnaire'][0]['sleep'],
-                fitnessLevel: userDetails['questionnaire'][0]['fitnesslevel'],
-                weight: userDetails['questionnaire'][0]['weight'],
-                height: userDetails['questionnaire'][0]['height'],
-                gender: userDetails['questionnaire'][0]['gender'],
-                progressFeedback: userDetails['questionnaire'][0]
-                    ['progress_feedback'],
-                healthCondition: userDetails['questionnaire'][0]
-                    ['health_condition'],
-              ),
-            )));
+        // context.read<QuestionBloc>().add(PostUserEvent(User(
+        //       email: userDetails['email'],
+        //       password: userDetails['password'],
+        //       fullName: userDetails['full_name'],
+        //       contactNo: userDetails['contact_no'],
+        //       dateOfBirth: userDetails['date_of_birth'],
+        //       questionnaire: Questionnaire(
+        //         chronicHealth: userDetails['questionnaire'][0]
+        //             ['chronic_health'],
+        //         dietPlan: userDetails['questionnaire'][0]['diet_plan'],
+        //         fitnessGoal: userDetails['questionnaire'][0]['fitness_goal'],
+        //         physicalActivities: userDetails['questionnaire'][0]
+        //             ['physical_activities'],
+        //         occupation: userDetails['questionnaire'][0]['occupation'],
+        //         sleep: userDetails['questionnaire'][0]['sleep'],
+        //         fitnessLevel: userDetails['questionnaire'][0]['fitnesslevel'],
+        //         weight: userDetails['questionnaire'][0]['weight'],
+        //         height: userDetails['questionnaire'][0]['height'],
+        //         gender: userDetails['questionnaire'][0]['gender'],
+        //         progressFeedback: userDetails['questionnaire'][0]
+        //             ['progress_feedback'],
+        //         healthCondition: userDetails['questionnaire'][0]
+        //             ['health_condition'],
+        //       ),
+        //     )));
 
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => const MealPlanScreen(),
