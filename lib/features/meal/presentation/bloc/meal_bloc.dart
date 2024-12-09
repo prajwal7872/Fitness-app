@@ -92,6 +92,7 @@ class MealBloc extends Bloc<MealEvent, MealState> {
       _startCountdownTimer();
       _scheduleMealNotifications(statusData);
     });
+
     on<AcceptMealEvent>((event, emit) async {
       final state = this.state as MealPlanLoaded;
       final acceptedMeals = List<bool>.from(state.acceptedMeals);
